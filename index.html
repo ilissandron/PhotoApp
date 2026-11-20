@@ -1,0 +1,1062 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Archivio Foto">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<title>Archivio Foto</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--ink:#1d2330;--mute:#6b7385;--line:#e3e6ec;--acc:#2f6fde;--acc2:#e8f0fd;--warn:#f29a2e;--ok:#2e9e5b;--tile:160px;--hh:52px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{overscroll-behavior-y:none}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;font-size:14px;color:var(--ink);background:var(--bg)}
+body.noscroll{overflow:hidden}
+button{font:inherit;cursor:pointer;border:1px solid var(--line);background:#fff;border-radius:6px;padding:5px 10px;color:var(--ink)}
+button:hover{border-color:#b9c0cc}
+button.primary{background:var(--acc);border-color:var(--acc);color:#fff}
+button.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+button.link{border:none;background:none;color:var(--acc);padding:2px 4px}
+button.danger{background:#c0392b;border-color:#c0392b;color:#fff}
+input,select,textarea{font:inherit;border:1px solid var(--line);border-radius:6px;padding:5px 8px;background:#fff;color:var(--ink)}
+header{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:center;padding:8px 14px;flex-wrap:wrap}
+header .br{display:none}
+.brand{font-weight:700;font-size:16px;white-space:nowrap}
+#q{flex:1;min-width:200px;max-width:520px}
+.tabs{display:flex;gap:4px}
+.tabs button{white-space:nowrap}
+.tabs button.on{background:var(--acc2);border-color:var(--acc);color:var(--acc);font-weight:600}
+.tabs button.trash.on{background:#fdecea;border-color:#c0392b;color:#c0392b}
+.spacer{flex:1}
+.pill{display:inline-block;min-width:20px;padding:0 6px;border-radius:10px;background:var(--warn);color:#fff;font-size:12px;text-align:center}
+.pill.gray{background:#8a93a5}
+.pill:empty{display:none}
+#btnSalva.dirty{background:var(--warn);border-color:var(--warn)}
+#btnSalva.err{background:#c0392b;border-color:#c0392b}
+#btnSel.on{background:var(--acc2);border-color:var(--acc);color:var(--acc)}
+.mob{display:none}
+#menu{position:fixed;z-index:55;top:calc(var(--hh) + 4px);right:10px;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.15);padding:12px;width:290px;display:none}
+#menu.show{display:block}
+#menu .mi{display:flex;align-items:center;gap:8px;padding:7px 2px}
+#menu .mi>span{flex:1;color:var(--mute)}
+#menu hr{border:none;border-top:1px solid var(--line);margin:8px 0}
+#menu button.full{width:100%;text-align:left;margin:3px 0}
+#menu .acct{font-size:12px;color:var(--mute);word-break:break-all}
+main{display:flex;align-items:flex-start}
+aside{width:250px;flex:none;position:sticky;top:var(--hh);max-height:calc(100vh - var(--hh));overflow:auto;padding:10px 12px 80px;border-right:1px solid var(--line);background:#fbfbfc}
+aside .ahead{display:none}
+.facet{margin-bottom:14px}
+.facet h4{margin:0 0 4px;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--mute)}
+.facet h4 .link{font-size:11px;text-transform:none;letter-spacing:0;float:right}
+.fv{display:flex;align-items:center;gap:6px;padding:2px 6px;border-radius:5px;cursor:pointer;line-height:1.5;user-select:none;-webkit-user-select:none}
+.fv input{margin:0;pointer-events:none;accent-color:var(--acc)}
+.fv .lbl{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fv:hover{background:#eef1f6}
+.fv.on{background:var(--acc2);color:var(--acc);font-weight:600}
+.fv .n{color:var(--mute);font-size:12px}
+.fv.zero{opacity:.45}
+.trashbar{background:#fdecea;border:1px solid #f3c2bc;border-radius:8px;padding:10px 12px;margin-bottom:10px;color:var(--ink)}
+#content{flex:1;min-width:0;padding:10px 16px 120px}
+.info{display:flex;gap:8px;align-items:center;flex-wrap:wrap;color:var(--mute);margin-bottom:8px}
+.chip{display:inline-flex;align-items:center;gap:4px;background:#eef1f6;border-radius:12px;padding:2px 9px;font-size:12.5px;color:var(--ink);margin:2px 3px 2px 0}
+.chip.cat{background:#e6f2ea}.chip.per{background:#fdeee4}.chip.tag{background:#eef1f6}.chip.luo{background:#e8eefc}
+.chip b{cursor:pointer;color:var(--mute);font-weight:400;padding:0 2px}
+.chip b:hover{color:#c0392b}
+.group{margin:18px 0 6px}
+.ghead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.ghead h3{margin:0;font-size:16px}
+.ghead .meta{color:var(--mute);font-size:12.5px}
+.ghead .acts{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--tile),1fr));gap:6px}
+.tile{position:relative;aspect-ratio:1;background:#dde1e7;border-radius:6px;overflow:hidden;cursor:pointer;outline:3px solid transparent;outline-offset:-3px;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.tile img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .15s;-webkit-user-drag:none;pointer-events:none}
+.rotbtn{position:absolute;top:6px;right:26px;display:none;gap:3px}
+@media (hover:hover){.tile:hover .rotbtn{display:flex}.tile:hover .chk{opacity:1}}
+.rotbtn b{background:rgba(0,0,0,.55);color:#fff;border-radius:50%;width:22px;height:22px;line-height:22px;text-align:center;font-size:14px;font-weight:400;cursor:pointer}
+.rotbtn b:hover{background:var(--acc)}
+.rotrow{display:flex;gap:8px}
+.rotrow button{flex:1}
+.tile.sel{outline-color:var(--acc)}
+.tile.sel img{opacity:.8}
+.chk{position:absolute;top:6px;left:6px;width:22px;height:22px;border-radius:50%;border:2px solid #fff;background:rgba(0,0,0,.25);opacity:0;transition:.1s}
+.tile.sel .chk,.selmode .chk{opacity:1}
+.tile.sel .chk{background:var(--acc);border-color:#fff}
+.tile.sel .chk:after{content:"✓";color:#fff;font-size:13px;position:absolute;left:4px;top:0}
+.badge{position:absolute;bottom:6px;right:6px;background:rgba(0,0,0,.6);color:#fff;font-size:11.5px;padding:1px 6px;border-radius:9px}
+.badge.sim{cursor:pointer}
+.badge.sim:hover{background:var(--acc)}
+.vid{position:absolute;bottom:6px;left:6px;background:rgba(0,0,0,.6);color:#fff;font-size:11px;padding:1px 6px;border-radius:9px}
+.dot{position:absolute;top:8px;right:8px;width:10px;height:10px;border-radius:50%;background:var(--warn);border:2px solid #fff}
+.tile.exp{outline-color:#9fb8e8}
+#more{padding:20px;text-align:center;color:var(--mute)}
+#bulk{position:fixed;right:0;top:var(--hh);bottom:0;width:370px;z-index:30;background:#fff;border-left:1px solid var(--line);box-shadow:-4px 0 14px rgba(0,0,0,.08);overflow:auto;padding:14px 16px 40px;display:none}
+#bulk.show{display:block}
+body.bulkopen #content{padding-right:386px}
+#bulk .bhead{display:none}
+#bulk h3{margin:0;font-size:17px}
+#bulk .sub{color:var(--mute);font-size:12.5px;margin:2px 0 8px}
+#bulk section{margin:12px 0}
+#bulk section h4{margin:0 0 4px;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--mute)}
+#bulk .add{width:100%;margin-top:4px}
+#bulk .strip{display:flex;gap:3px;flex-wrap:wrap;margin:6px 0}
+#bulk .strip img{width:40px;height:40px;object-fit:cover;border-radius:4px;background:#dde1e7}
+#bulk .chip.part{opacity:.65;border:1px dashed #9aa3b5}
+#bulk .chip i{font-style:normal;color:var(--mute);font-size:11px}
+#bulk .chip u{text-decoration:none;cursor:pointer;color:var(--acc);font-weight:600;padding:0 2px}
+#bulk .row{display:flex;gap:6px;flex-wrap:wrap}
+#bulk .row button{flex:1}
+#bulk textarea{width:100%;min-height:48px;resize:vertical}
+#viewer{position:fixed;inset:0;z-index:50;background:#0e121a;display:none}
+#viewer.show{display:flex}
+#vmedia{flex:1;display:flex;align-items:center;justify-content:center;position:relative;min-width:0;min-height:0;touch-action:pan-y pinch-zoom}
+#vbox{display:flex;align-items:center;justify-content:center;width:100%;height:100%}
+#vbox img,#vbox video{max-width:100%;max-height:100vh;object-fit:contain}
+#vbox.zoom{overflow:auto;display:block;-webkit-overflow-scrolling:touch}
+#vbox.zoom img{max-width:none;max-height:none}
+.nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.12);border:none;color:#fff;font-size:28px;width:48px;height:64px;border-radius:8px;z-index:2}
+.nav:hover{background:rgba(255,255,255,.25)}
+#vprev{left:10px}#vnext{right:10px}
+#vtop{position:absolute;top:10px;left:10px;right:10px;display:flex;gap:8px;align-items:center;z-index:2;pointer-events:none}
+#vtop>*{pointer-events:auto}
+#vtop button{background:rgba(255,255,255,.14);border:none;color:#fff;font-size:15px}
+#vcount{color:#cfd6e4;font-size:13px}
+#vbar{display:none;position:absolute;left:0;right:0;bottom:0;gap:8px;justify-content:center;align-items:center;padding:10px 10px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(transparent,rgba(0,0,0,.55));z-index:2}
+#vbar button{background:rgba(255,255,255,.16);border:none;color:#fff;font-size:15px;padding:9px 13px;border-radius:10px}
+#vbar button.ok{background:var(--ok)}
+#vpanel{width:360px;flex:none;background:#fff;overflow:auto;padding:16px}
+#vpanel .grab{display:none}
+#vpanel h3{margin:0 0 2px;font-size:17px}
+#vpanel .sub{color:var(--mute);font-size:12.5px;margin-bottom:10px}
+#vpanel section{margin:12px 0}
+#vpanel section h4{margin:0 0 4px;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--mute)}
+#vpanel .add{width:100%;margin-top:4px}
+#vpanel textarea{width:100%;min-height:54px;resize:vertical}
+.vmsg{color:#fff;text-align:center;max-width:420px;line-height:1.5;padding:20px}
+.vmsg a{color:#9cf}
+.state{display:flex;gap:8px;align-items:center;padding:10px;border-radius:8px;background:#fff6e5;margin:10px 0}
+.state.done{background:#e8f6ee}
+.kbd{font-size:11.5px;color:var(--mute);margin-top:14px;line-height:1.6}
+.kbd span{border:1px solid var(--line);border-radius:4px;padding:0 4px;background:#fafafa}
+#modal{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center}
+#modal.show{display:flex}
+#modal .box{background:#fff;border-radius:12px;max-width:640px;width:92%;max-height:85vh;overflow:auto;padding:20px}
+#modal h3{margin-top:0}
+.empty{padding:60px 20px;text-align:center;color:var(--mute)}
+.empty h3{color:var(--ink)}
+#toast{position:fixed;bottom:calc(90px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:#1f2a3d;color:#fff;padding:8px 16px;border-radius:8px;z-index:70;display:none;max-width:90vw;text-align:center}
+#gate{position:fixed;inset:0;z-index:80;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:24px}
+#gate.hide{display:none}
+#gate .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:28px 24px;max-width:420px;width:100%;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.06)}
+#gate img{width:72px;height:72px;border-radius:16px}
+#gate h2{margin:12px 0 6px}
+#gate p{color:var(--mute);line-height:1.5}
+#gate .bar{height:6px;background:#e9ecf2;border-radius:3px;overflow:hidden;margin:14px 0 4px;display:none}
+#gate .bar i{display:block;height:100%;width:0;background:var(--acc);transition:width .2s}
+#gate button.primary{font-size:16px;padding:10px 18px;border-radius:10px;margin-top:8px}
+/* ---------- telefono e iPad verticale ---------- */
+@media (max-width:899px){
+  :root{--hh:92px}
+  .mob{display:inline-block}
+  .desk{display:none!important}
+  header{padding:6px 8px;padding-top:calc(6px + env(safe-area-inset-top));gap:6px}
+  .brand{display:none}
+  #q{order:1;flex:1;min-width:0;max-width:none}
+  #btnSalva{order:2}
+  #btnMenu{order:3}
+  header .br{display:block;order:4;flex-basis:100%;height:0}
+  .tabs{order:5;flex:1;min-width:0;overflow-x:auto;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tabs button{padding:5px 8px}
+  #btnFiltri{order:6}#btnSel{order:7}
+  .spacer{display:none}
+  input,select,textarea{font-size:16px}
+  #menu{right:6px;left:6px;width:auto;top:calc(env(safe-area-inset-top) + 50px)}
+  aside{position:fixed;inset:0;width:auto;max-height:none;z-index:45;transform:translateX(-105%);transition:transform .2s;padding:0 12px calc(40px + env(safe-area-inset-bottom));background:#fff;border:none}
+  aside.open{transform:none}
+  aside .ahead{display:flex;position:sticky;top:0;background:#fff;z-index:2;align-items:center;gap:8px;padding:calc(10px + env(safe-area-inset-top)) 0 10px;border-bottom:1px solid var(--line);margin-bottom:10px}
+  aside .ahead b{flex:1;font-size:17px}
+  .fv{padding:6px 6px;font-size:15px}
+  #content{padding:8px 6px 140px}
+  .grid{gap:3px}
+  .tile{border-radius:3px}
+  .ghead h3{font-size:15px}
+  .ghead .acts{margin-left:0;width:100%}
+  .ghead .acts button{padding:4px 8px;font-size:13px}
+  .chk{opacity:0}
+  .tile.sel .chk,.selmode .chk{opacity:1}
+  #bulk{left:0;right:0;top:auto;bottom:0;width:auto;max-height:78vh;border-left:none;border-top:1px solid var(--line);border-radius:16px 16px 0 0;padding:10px 12px calc(14px + env(safe-area-inset-bottom));box-shadow:0 -6px 20px rgba(0,0,0,.12)}
+  body.bulkopen #content{padding-right:6px;padding-bottom:220px}
+  #bulk .bhead{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+  #bulk .bhead b{flex:1;font-size:15px;min-width:110px}
+  #bulk .bhead button{padding:7px 10px}
+  #bulk .bfull{display:none}
+  #bulk.mini .bbody{display:none}
+  #viewer{flex-direction:column}
+  #vbox img,#vbox video{max-height:100%}
+  .nav{display:none}
+  #vbar{display:flex}
+  #vtop{top:calc(8px + env(safe-area-inset-top))}
+  #vpanel{position:absolute;left:0;right:0;bottom:0;width:auto;max-height:58vh;border-radius:16px 16px 0 0;transform:translateY(105%);transition:transform .2s;padding:8px 16px calc(20px + env(safe-area-inset-bottom));z-index:4}
+  #vpanel .grab{display:block;width:40px;height:5px;border-radius:3px;background:#d5d9e0;margin:2px auto 10px}
+  #viewer.vopen #vpanel{transform:none}
+  #viewer.vopen #vmedia{align-items:flex-start}
+  #viewer.vopen #vbox{height:36vh;margin-top:calc(54px + env(safe-area-inset-top))}
+  #viewer.vopen #vbar{display:none}
+  .kbd{display:none}
+}
+@media (min-width:900px){ .mob{display:none!important} }
+</style>
+<script src="msal-browser.min.js"></script>
+</head>
+<body>
+<div id="gate"><div class="card">
+  <img src="icon-192.png" alt="">
+  <h2>Archivio Foto</h2>
+  <p id="gmsg">Avvio…</p>
+  <div class="bar" id="gbar"><i></i></div>
+  <div id="gbtn"></div>
+</div></div>
+
+<header>
+  <div class="brand">Archivio Foto</div>
+  <input id="q" type="search" placeholder="Cerca: luogo, evento, persona, tag…" enterkeyhint="search">
+  <div class="tabs">
+    <button data-view="tutte">Tutte</button>
+    <button data-view="rivedere">Da rivedere <span class="pill" id="nRiv"></span></button>
+    <button data-view="cestino" class="trash">Cestino <span class="pill gray" id="nDel"></span></button>
+  </div>
+  <i class="br"></i>
+  <span class="spacer"></span>
+  <button id="btnFiltri" class="mob">Filtri <span class="pill gray" id="nFilt"></span></button>
+  <button id="btnSel" title="Selezione multipla">Seleziona</button>
+  <button id="btnSalva" class="primary" title="Salva le modifiche (Ctrl+S)">Salvato</button>
+  <button id="btnMenu" title="Altre opzioni">⋯</button>
+</header>
+<div id="menu">
+  <div class="mi"><span>Raggruppa foto simili</span><input type="checkbox" id="comprimi" checked></div>
+  <div class="mi"><span>Ordine</span><select id="ordine"><option value="asc">Dalla più vecchia</option><option value="desc">Dalla più recente</option></select></div>
+  <div class="mi"><span>Dimensione</span><input type="range" id="zoom" min="70" max="300" value="160"></div>
+  <hr>
+  <button class="full" id="btnNuove">🔄 Aggiorna archivio (cartelle spostate, foto eliminate o nuove)</button>
+  <button class="full" id="btnReload">⬇︎ Ricarica i dati da OneDrive</button>
+  <button class="full" id="btnCache">🧹 Svuota la cache delle miniature</button>
+  <hr>
+  <div class="acct" id="acct"></div>
+  <button class="full" id="btnEsci">Esci</button>
+</div>
+<main>
+  <aside id="facets"></aside>
+  <div id="content">
+    <div class="info" id="info"></div>
+    <div id="grid"></div>
+    <div id="more"></div>
+  </div>
+</main>
+<div id="bulk"></div>
+<div id="viewer">
+  <div id="vmedia">
+    <div id="vtop"><button id="vclose" title="Chiudi (Esc)">✕ Chiudi</button><span id="vcount"></span></div>
+    <button class="nav" id="vprev" title="Precedente (←)">‹</button>
+    <div id="vbox"></div>
+    <button class="nav" id="vnext" title="Successiva (→)">›</button>
+    <div id="vbar"></div>
+  </div>
+  <div id="vpanel"></div>
+</div>
+<div id="modal"><div class="box" id="mbox"></div></div>
+<div id="toast"></div>
+<datalist id="dl-tag"></datalist><datalist id="dl-persone"></datalist><datalist id="dl-categorie"></datalist><datalist id="dl-luogo"></datalist><datalist id="dl-provincia"></datalist>
+
+<script>
+"use strict";
+// ======================= configurazione =======================
+const CFG = {
+  clientId: '89aa726c-1bee-469f-ba3c-36fac63a587a',   // app "Archivio Foto" (Entra ID, account personali)
+  root: 'Foto',                                         // cartella dell'archivio nel OneDrive
+  scopes: ['User.Read', 'Files.ReadWrite'],
+  versione: '1.0 (20/11/2026)'
+};
+const APP = '_app/';
+const F_IDX = APP+'dati/indice.js', F_MOD = APP+'dati/modifiche.js';
+const CATEGORIE_BASE = ['Vacanze/Viaggi','Eventi/Feste','Bambini/Scuola','Famiglia/Amici','Casa e lavori','Altro','Da verificare'];
+const MEDIA = /\.(jpe?g|heic|heif|png|gif|bmp|tiff?|cr2|nef|arw|dng|mov|mp4|m4v|avi|mpe?g|3gp)$/i;
+const PH = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+const PENDING = 'archivio-foto-web-pending';
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+const NARROW = matchMedia('(max-width: 899px)');
+const parseAssign = t => JSON.parse(t.slice(t.indexOf('=')+1).trim().replace(/;\s*$/,''));
+
+let IDX = {foto:[], eventi:{}}, MOD = {foto:{}, eventi:{}}, byId = new Map();
+const S = { view:'tutte', q:'', filt:{}, sel:new Set(), exp:new Set(), order:'asc', comprimi:true, step:900, limit:900, last:null, list:[], vi:-1,
+            changed:new Map(), evChanged:new Map(), seq:0, modEtag:null, idxEtag:null, saving:false, saveAgain:false, selMode:false, backupDone:false };
+
+// ======================= piccolo database locale (IndexedDB) =======================
+function idb(){ return new Promise((res,rej)=>{ const r=indexedDB.open('archivio-foto-web',1); r.onupgradeneeded=()=>r.result.createObjectStore('h'); r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error); }); }
+async function idbGet(k){ try{ const db=await idb(); return await new Promise(res=>{ const q=db.transaction('h').objectStore('h').get(k); q.onsuccess=()=>res(q.result); q.onerror=()=>res(null); }); }catch(e){ return null; } }
+async function idbSet(k,v){ try{ const db=await idb(); await new Promise(res=>{ const t=db.transaction('h','readwrite'); t.objectStore('h').put(v,k); t.oncomplete=res; t.onerror=res; }); }catch(e){} }
+
+// ======================= accesso Microsoft =======================
+let msalApp = null, account = null;
+const redirectUri = () => location.origin + location.pathname.replace(/index\.html$/,'');
+async function authInit(){
+  msalApp = new msal.PublicClientApplication({
+    auth:{ clientId:CFG.clientId, authority:'https://login.microsoftonline.com/consumers', redirectUri:redirectUri(), navigateToLoginRequestUrl:false },
+    cache:{ cacheLocation:'localStorage' }
+  });
+  await msalApp.initialize();
+  const r = await msalApp.handleRedirectPromise();
+  if(r && r.account) account = r.account;
+  if(!account){ const a = msalApp.getAllAccounts(); if(a.length) account = a[0]; }
+  return !!account;
+}
+async function token(force){
+  try{ return (await msalApp.acquireTokenSilent({scopes:CFG.scopes, account, forceRefresh:!!force})).accessToken; }
+  catch(e){
+    if(e instanceof msal.InteractionRequiredAuthError || /interaction_required|login_required|consent_required|no_tokens|token_refresh_required/i.test(e.errorCode||'')){
+      savePending(); await msalApp.acquireTokenRedirect({scopes:CFG.scopes, account}); return new Promise(()=>{});
+    }
+    throw e;
+  }
+}
+
+// ======================= OneDrive (Microsoft Graph) =======================
+const G = 'https://graph.microsoft.com/v1.0';
+const encP = rel => (rel ? CFG.root+'/'+rel : CFG.root).split('/').map(encodeURIComponent).join('/');
+const itemPath = rel => `/me/drive/root:/${encP(rel)}:`;
+async function httpErr(r){ let m=''; try{ const j=await r.json(); m=(j.error&&j.error.message)||''; }catch(e){} return new Error(`OneDrive ha risposto ${r.status}${m?': '+m:''}`); }
+async function gf(url, opt={}, tries=0){
+  const t = await token(tries>0 && opt._401);
+  let r;
+  try{ r = await fetch(url.startsWith('http')?url:G+url, Object.assign({}, opt, {headers:Object.assign({}, opt.headers||{}, {Authorization:'Bearer '+t})})); }
+  catch(e){ if(tries<3){ await sleep(1500*(tries+1)); return gf(url,opt,tries+1); } throw new Error('Connessione non riuscita: controlla la rete.'); }
+  if([429,503,504].includes(r.status) && tries<6){ await sleep(1000*(+(r.headers.get('Retry-After'))||2*(tries+1))); return gf(url,opt,tries+1); }
+  if(r.status===401 && tries<1){ return gf(url, Object.assign({}, opt, {_401:true}), tries+1); }
+  return r;
+}
+const Graph = {
+  async meta(rel){ const r = await gf(itemPath(rel)); if(r.status===404) return null; if(!r.ok) throw await httpErr(r); const j=await r.json(); j.dl=j['@microsoft.graph.downloadUrl']; return j; },
+  async getText(rel){ const m = await this.meta(rel); if(!m) return null; const r = await fetch(m.dl); if(!r.ok) throw await httpErr(r); return {text:await r.text(), etag:m.eTag, size:m.size}; },
+  async putText(rel, text, etag){
+    const h = {'Content-Type':'text/plain'}; if(etag) h['If-Match'] = etag;
+    const r = await gf(itemPath(rel)+'/content', {method:'PUT', headers:h, body:text});
+    if(r.status===412) throw Object.assign(new Error('Il file è stato modificato da un altro dispositivo.'), {conflict:true});
+    if(!r.ok) throw await httpErr(r);
+    return (await r.json()).eTag;
+  },
+  async copy(rel, name){ const r = await gf(itemPath(rel)+'/copy?@microsoft.graph.conflictBehavior=replace', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name})}); return r.ok; },
+  async batchUrls(rels){
+    const out = new Map();
+    let todo = rels.slice();
+    for(let round=0; round<4 && todo.length; round++){
+      const body = {requests: todo.map((rel,i)=>({id:String(i), method:'GET', url:`/me/drive/root:/${encP(rel)}`}))};
+      const r = await gf('/$batch', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+      if(!r.ok) throw await httpErr(r);
+      const j = await r.json(); const again = [];
+      for(const x of j.responses){ const rel = todo[+x.id];
+        if(x.status===200) out.set(rel, x.body['@microsoft.graph.downloadUrl']||null);
+        else if(x.status===404) out.set(rel, null);
+        else again.push(rel); }
+      todo = again; if(todo.length) await sleep(1500*(round+1));
+    }
+    return out;
+  },
+  async ensureFolder(rel){
+    const m = await this.meta(rel); if(m) return m.id;
+    const parts = rel.split('/'), name = parts.pop(); const pid = parts.length ? await this.ensureFolder(parts.join('/')) : (await this.meta('')).id;
+    const r = await gf(`/me/drive/items/${pid}/children`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name, folder:{}, '@microsoft.graph.conflictBehavior':'fail'})});
+    if(r.ok) return (await r.json()).id;
+    const m2 = await this.meta(rel); if(m2) return m2.id; throw await httpErr(r);
+  },
+  async move(rel, destDir){
+    const pid = await this.ensureFolder(destDir);
+    const r = await gf(itemPath(rel), {method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({parentReference:{id:pid}})});
+    if(r.status===404) return 'mancante'; if(!r.ok) throw await httpErr(r); return 'ok';
+  },
+  async listAll(prog){
+    const root = await this.meta(''); const items = new Map(); let n = 0;
+    let url = `/me/drive/items/${root.id}/delta?$select=id,name,file,folder,parentReference,deleted`;
+    while(url){
+      const r = await gf(url); if(!r.ok) throw await httpErr(r); const j = await r.json();
+      for(const it of j.value){ if(it.deleted){ items.delete(it.id); continue; } items.set(it.id, {name:it.name, pid:it.parentReference&&it.parentReference.id, file:!!it.file}); }
+      n += j.value.length; prog && prog(n); url = j['@odata.nextLink'] || null;
+    }
+    const pathOf = new Map([[root.id,'']]);
+    const P = id => { if(pathOf.has(id)) return pathOf.get(id); const it = items.get(id); if(!it){ pathOf.set(id,null); return null; } pathOf.set(id,null); const pp = P(it.pid); const v = pp===null ? null : (pp ? pp+'/' : '')+it.name; pathOf.set(id,v); return v; };
+    const out = new Set();
+    for(const [id,it] of items){ if(!it.file || !MEDIA.test(it.name)) continue; const p = P(id); if(!p) continue;
+      if(p.split('/').some(s=>s.startsWith('_')||s.startsWith('.'))) continue; out.add(p); }
+    return out;
+  }
+};
+// modalità dimostrativa (dati incorporati, nessun accesso a OneDrive)
+const Demo = {
+  async meta(rel){ return {eTag:'demo', id:'demo', dl:null, size:0}; },
+  async getText(rel){ const D=window.DEMO_DATA; if(rel===F_IDX) return {text:'window.FOTO_INDICE = '+JSON.stringify(D.indice), etag:'demo'}; if(rel===F_MOD) return {text:'window.FOTO_MODIFICHE = '+JSON.stringify(D.modifiche||{}), etag:'demo'}; return null; },
+  async putText(rel, text){ console.log('[demo] salvo', rel, text.length, 'caratteri'); await sleep(300); return 'demo'; },
+  async copy(){ return true; },
+  async batchUrls(rels){ const m=new Map(); rels.forEach(r=>m.set(r, (window.DEMO_DATA.thumbs||{})[r]||null)); return m; },
+  async move(){ return 'ok'; },
+  async listAll(){ throw new Error('Non disponibile nella dimostrazione.'); }
+};
+let B = Graph;
+
+// ======================= miniature (con cache sul dispositivo) =======================
+const TH = { url:new Map(), pending:new Set(), missing:new Set(), queue:[], running:0, cache:null };
+const thKey = rel => 'https://cache.archivio-foto/th/'+encodeURIComponent(rel);
+async function thCache(){
+  if(TH.cache===null){ TH.cache = (async()=>{ try{ return await Promise.race([caches.open('af-miniature'), sleep(2000).then(()=>false)]); }catch(e){ return false; } })(); }
+  return TH.cache;
+}
+const io = ('IntersectionObserver' in window) ? new IntersectionObserver(ents=>{ for(const en of ents) if(en.isIntersecting){ io.unobserve(en.target); want(en.target.dataset.p); } }, {rootMargin:'900px 0px'}) : null;
+function hookImgs(root){
+  root.querySelectorAll('img[data-p]').forEach(img=>{ const p = img.dataset.p; const u = TH.url.get(p); if(u){ if(img.src!==u) img.src=u; } else if(io) io.observe(img); else want(p); });
+}
+function want(rel){ if(!rel || TH.url.has(rel) || TH.pending.has(rel) || TH.missing.has(rel)) return; TH.pending.add(rel); TH.queue.push(rel); pump(); }
+function setThumb(rel, u){ TH.url.set(rel, u); document.querySelectorAll(`img[data-p="${CSS.escape(rel)}"]`).forEach(i=>{ i.src=u; }); }
+function pump(){ while(TH.running<4 && TH.queue.length){ const b = TH.queue.splice(0,20); TH.running++; loadBatch(b).catch(()=>{}).finally(()=>{ TH.running--; pump(); }); } }
+async function loadBatch(rels){
+  const cache = await thCache(); const need = [];
+  for(const r of rels){ let hit = null; try{ hit = cache && await Promise.race([cache.match(thKey(r)), sleep(1500).then(()=>null)]); }catch(e){}
+    if(hit){ setThumb(r, URL.createObjectURL(await hit.blob())); TH.pending.delete(r); } else need.push(r); }
+  if(!need.length) return;
+  let urls; try{ urls = await B.batchUrls(need); }catch(e){ need.forEach(r=>TH.pending.delete(r)); return; }
+  await Promise.all(need.map(async r=>{
+    const u = urls.get(r); TH.pending.delete(r);
+    if(!u){ TH.missing.add(r); return; }
+    if(u.startsWith('data:')){ setThumb(r,u); return; }
+    try{ const resp = await fetch(u); if(!resp.ok) throw 0; const b = await resp.blob();
+      if(cache) cache.put(thKey(r), new Response(b, {headers:{'Content-Type':'image/jpeg'}})).catch(()=>{});
+      setThumb(r, URL.createObjectURL(b)); }
+    catch(e){ setThumb(r, u); }
+  }));
+}
+// link temporanei ai file grandi (valgono circa un'ora)
+const DL = new Map();
+async function fileUrl(rel){
+  const c = DL.get(rel); if(c && Date.now()-c.t < 45*60e3) return c.u;
+  if(B===Demo){ const u = (window.DEMO_DATA.thumbs||{})[rel] || null; return u; }
+  const m = await B.meta(rel); const u = m ? m.dl : null; if(u) DL.set(rel, {u, t:Date.now()}); return u;
+}
+const thumbOf = p => APP + p.min;
+
+// ======================= dati effettivi (indice + modifiche) =======================
+function E(p){ const m = MOD.foto[p.id]; return m ? Object.assign({}, p, m) : p; }
+function evTitle(id){ return (MOD.eventi[id] && MOD.eventi[id].titolo) || (IDX.eventi[id] && IDX.eventi[id].titolo) || id || '(senza evento)'; }
+function allEvents(){ return [...new Set([...Object.keys(IDX.eventi), ...Object.keys(MOD.eventi)])]; }
+function edit(ids, fn){
+  const now = new Date().toISOString();
+  ids.forEach(id => {
+    const p = byId.get(id); if(!p) return; const c = E(p);
+    const n = { categorie:[...(c.categorie||[])], persone:[...(c.persone||[])], tag:[...(c.tag||[])], luogo:[...(c.luogo||[])],
+                descrizione:c.descrizione||'', stato:c.stato, evento:c.evento, provincia:c.provincia||'' };
+    if(c.eliminata) n.eliminata = true; if(c.rimossa) n.rimossa = true; if(c.cestino) n.cestino = c.cestino; if(c.rotazione) n.rotazione = c.rotazione;
+    fn(n, p); n.modificato = now; MOD.foto[id] = n; S.changed.set(id, ++S.seq);
+  });
+  markDirty(); render();
+}
+function editEvent(ev, obj){ MOD.eventi[ev] = Object.assign({}, MOD.eventi[ev], obj); S.evChanged.set(ev, ++S.seq); markDirty(); }
+const isDone = p => p.stato === 'rivista';
+const rotOf = p => (((p.rotazione||0)%360)+360)%360;
+function rotate(ids, d){ edit(ids, n=>{ const r=((((n.rotazione||0)+d)%360)+360)%360; if(r) n.rotazione=r; else delete n.rotazione; }); }
+function applyRot(el, r){
+  if(!el) return; el.style.transform = r ? `rotate(${r}deg)` : '';
+  const box = $('#vmedia');
+  if(r%180){ el.style.maxWidth = (box.clientHeight-20)+'px'; el.style.maxHeight = (box.clientWidth-20)+'px'; }
+  else { el.style.maxWidth=''; el.style.maxHeight=''; }
+}
+
+// ======================= filtri =======================
+const FACETS = [
+  {k:'tipo', label:'Tipo', get:p=>[p.tipo==='video'?'Video':'Foto']},
+  {k:'anno', label:'Anno', get:p=>[String(p.anno)], sort:'key'},
+  {k:'stato', label:'Stato', get:p=>[isDone(p)?'Rivista':'Da rivedere']},
+  {k:'categorie', label:'Categoria', get:p=>p.categorie||[]},
+  {k:'persone', label:'Persone', get:p=>p.persone||[]},
+  {k:'provincia', label:'Provincia', get:p=>p.provincia?[p.provincia]:['(non indicata)']},
+  {k:'paese', label:'Paese', get:p=>p.luogo&&p.luogo[2]?[p.luogo[2]]:[]},
+  {k:'evento', label:'Evento', get:p=>[evTitle(p.evento)]},
+  {k:'tag', label:'Tag', get:p=>p.tag||[]},
+];
+const showAll = new Set();
+function hay(p){ return [p.file,evTitle(p.evento),...(p.categorie||[]),...(p.persone||[]),...(p.tag||[]),...(p.luogo||[]),p.provincia,p.descrizione,p.data].join(' ').toLowerCase(); }
+function pass(p, except){
+  if(p.rimossa) return false;
+  if(S.view==='cestino'){ if(!p.eliminata) return false; } else if(p.eliminata) return false;
+  if(S.view==='rivedere' && isDone(p)) return false;
+  if(S.q){ const h = hay(p); for(const t of S.q.toLowerCase().split(/\s+/).filter(Boolean)) if(!h.includes(t)) return false; }
+  for(const f of FACETS){ if(f.k===except) continue; const set = S.filt[f.k]; if(!set||!set.size) continue;
+    if(!f.get(p).some(v=>set.has(v))) return false; }
+  return true;
+}
+function nFilt(){ return Object.values(S.filt).reduce((a,s)=>a+s.size,0); }
+function renderFacets(all, nList){
+  let h = `<div class="ahead"><b>Filtri</b>${nFilt()?'<button data-clrall="1">Azzera</button>':''}<button class="primary" data-close="1">Mostra ${nList}</button></div>`;
+  for(const f of FACETS){
+    const cnt = new Map();
+    for(const p of all){ if(!pass(p,f.k)) continue; for(const v of new Set(f.get(p))) cnt.set(v,(cnt.get(v)||0)+1); }
+    const sel = S.filt[f.k] || new Set();
+    sel.forEach(v=>{ if(!cnt.has(v)) cnt.set(v,0); });
+    const items = [...cnt.entries()];
+    if(!items.length) continue;
+    items.sort(f.sort==='key' ? (a,b)=> (S.order==='desc'? b[0].localeCompare(a[0]) : a[0].localeCompare(b[0])) : (a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]));
+    const lim = showAll.has(f.k) ? 9999 : 10;
+    h += `<div class="facet"><h4>${f.label}${sel.size?` <button class="link" data-clr="${f.k}">azzera (${sel.size})</button>`:''}</h4>`;
+    items.slice(0,lim).forEach(([v,n])=>{ h += `<div class="fv ${sel.has(v)?'on':''} ${n?'':'zero'}" data-f="${f.k}" data-v="${esc(v)}"><input type="checkbox" tabindex="-1" ${sel.has(v)?'checked':''}><span class="lbl">${esc(v)}</span><span class="n">${n}</span></div>`; });
+    if(items.length>lim) h += `<button class="link" data-more="${f.k}">mostra tutti (${items.length})</button>`;
+    else if(showAll.has(f.k) && items.length>10) h += `<button class="link" data-more="${f.k}">mostra meno</button>`;
+    h += `</div>`;
+  }
+  const sc = $('#facets').scrollTop; $('#facets').innerHTML = h; $('#facets').scrollTop = sc;
+  $('#nFilt').textContent = nFilt() || '';
+}
+
+// ======================= griglia =======================
+function render(){
+  const all = IDX.foto.map(E);
+  const list = all.filter(p=>pass(p));
+  list.sort((a,b)=> S.order==='asc' ? a.data.localeCompare(b.data) : b.data.localeCompare(a.data));
+  S.list = list;
+  $('#nRiv').textContent = all.filter(p=>!isDone(p)&&!p.eliminata&&!p.rimossa).length || '';
+  $('#nDel').textContent = all.filter(p=>p.eliminata&&!p.rimossa).length || '';
+  const TR = S.view==='cestino';
+  document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on', b.dataset.view===S.view));
+  renderFacets(all, list.length);
+  renderInfo(list);
+  const groups = new Map();
+  for(const p of list){ const k = p.evento||'-'; if(!groups.has(k)) groups.set(k,[]); groups.get(k).push(p); }
+  let h = '', shown = 0; S.flat = [];
+  if(TR && list.length){
+    h += `<div class="trashbar"><b>${list.length} elementi nel cestino.</b> Finché restano qui puoi ripristinarli; i file originali non sono ancora stati toccati.
+      <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"><button class="ok" data-tr="restore">Ripristina tutto</button>
+      <button class="danger" data-tr="purge">Elimina definitivamente tutto</button></div>
+      <div style="font-size:12px;color:var(--mute);margin-top:6px">“Elimina definitivamente” sposta i file nella cartella <code>Foto/_cestino</code> del OneDrive: li cancelli tu quando sei sicuro.</div></div>`;
+  }
+  if(!list.length){
+    h = TR ? `<div class="empty"><h3>Il cestino è vuoto</h3>Per eliminare una foto: selezionala e premi <b>Elimina</b>, oppure premi 🗑 mentre la guardi.</div>` :
+      S.view==='rivedere' && !S.q && !nFilt()
+      ? `<div class="empty"><h3>Tutto rivisto ✓</h3>Non ci sono foto da rivedere. Quando Claude analizzerà nuove foto, le troverai qui.</div>`
+      : `<div class="empty"><h3>Nessuna foto</h3>Nessuna foto corrisponde ai filtri.</div>`;
+  }
+  for(const [ev, ps] of groups){
+    if(shown >= S.limit) break;
+    const first = ps[0].data.slice(0,10), lastd = ps[ps.length-1].data.slice(0,10);
+    const dal = S.order==='asc'? first : lastd, al = S.order==='asc'? lastd : first;
+    const places = [...new Set(ps.map(p=>p.provincia).filter(Boolean))].slice(0,3).map(x=>'prov. '+x).join(', ');
+    const nr = ps.filter(p=>!isDone(p)).length;
+    h += `<div class="group" data-ev="${esc(ev)}"><div class="ghead"><h3>${esc(evTitle(ev))}</h3>
+      <span class="meta">${fmtD(dal)}${al!==dal?' – '+fmtD(al):''} · ${ps.length} elementi${places?' · '+esc(places):''}${nr?` · <span style="color:var(--warn)">${nr} da rivedere</span>`:''}</span>
+      <span class="acts">${TR?`<button data-act="selev">Seleziona evento</button><button class="ok" data-act="resev">Ripristina evento</button>`:
+      `<button class="link" data-act="rename">Rinomina</button><button data-act="selev">Seleziona evento</button>
+      ${nr?`<button class="ok" data-act="okev">✓ Conferma evento</button>`:''}`}</span></div><div class="grid">`;
+    const seenG = new Set();
+    for(const p of ps){
+      let ids = [p.id], badge = '';
+      if(p.gruppo && S.comprimi && !S.exp.has(p.gruppo)){
+        if(seenG.has(p.gruppo)) continue; seenG.add(p.gruppo);
+        const mem = ps.filter(x=>x.gruppo===p.gruppo); ids = mem.map(x=>x.id);
+        if(mem.length>1) badge = `<span class="badge sim" data-g="${esc(p.gruppo)}" title="Mostra le ${mem.length} foto simili">+${mem.length-1}</span>`;
+      } else if(p.gruppo && S.exp.has(p.gruppo) && !seenG.has(p.gruppo)){
+        seenG.add(p.gruppo); badge = `<span class="badge sim" data-g="${esc(p.gruppo)}" title="Raggruppa di nuovo">raggruppa</span>`;
+      }
+      const sel = ids.every(i=>S.sel.has(i));
+      S.flat.push(ids);
+      const tp = thumbOf(p);
+      h += `<div class="tile ${sel?'sel':''} ${p.gruppo&&S.exp.has(p.gruppo)?'exp':''}" data-ids="${esc(ids.join('|'))}" data-i="${S.flat.length-1}" title="${esc(p.data+' · '+(p.luogo&&p.luogo[0]||'')+' · '+(p.tag||[]).join(', '))}">
+        <img data-p="${esc(tp)}" src="${TH.url.get(tp)||PH}" alt=""${rotOf(p)?` style="transform:rotate(${rotOf(p)}deg)"`:''}><span class="chk"></span>
+        <span class="rotbtn"><b data-rot="-90" title="Ruota a sinistra">⟲</b><b data-rot="90" title="Ruota a destra">⟳</b></span>
+        ${p.tipo==='video'?'<span class="vid">▶</span>':''}${isDone(p)||TR?'':'<span class="dot" title="Da rivedere"></span>'}${badge}</div>`;
+      shown++;
+    }
+    h += `</div></div>`;
+  }
+  $('#grid').innerHTML = h;
+  $('#grid').classList.toggle('selmode', S.sel.size>0 || S.selMode);
+  $('#more').innerHTML = shown >= S.limit ? `<button id="btnMore">Mostra altre foto</button>` : '';
+  hookImgs($('#grid'));
+  renderBulk();
+}
+function fmtD(d){ if(!d) return ''; const [y,m,g]=d.split('-'); return `${+g} ${['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'][+m-1]} ${y}`; }
+function renderInfo(list){
+  let h = `<span>${list.length} elementi</span>`;
+  for(const f of FACETS){ (S.filt[f.k]||new Set()).forEach(v=>{ h += `<span class="chip">${f.label}: ${esc(v)} <b data-unf="${f.k}" data-v="${esc(v)}">✕</b></span>`; }); }
+  if(S.q) h += `<span class="chip">Testo: “${esc(S.q)}” <b data-unq="1">✕</b></span>`;
+  if(nFilt() || S.q) h += `<button class="link" id="btnReset">Azzera filtri</button>`;
+  $('#info').innerHTML = h;
+}
+
+// ======================= selezione multipla =======================
+function renderBulk(){
+  const n = S.sel.size; const box=$('#bulk');
+  box.classList.toggle('show', n>0); document.body.classList.toggle('bulkopen', n>0); if(!n){ box.innerHTML=''; box.classList.add('mini'); return; }
+  const TR = S.view==='cestino';
+  const ps = [...S.sel].map(id=>byId.get(id)).filter(Boolean).map(E);
+  const cnt = k => { const m=new Map(); ps.forEach(p=>new Set(p[k]||[]).forEach(v=>m.set(v,(m.get(v)||0)+1))); return [...m.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])); };
+  const same = f => { const vs=new Set(ps.map(f)); return vs.size===1 ? [...vs][0] : null; };
+  const chips = (k,c) => { const items=cnt(k); if(!items.length) return '<span style="color:var(--mute);font-size:12.5px">nessuno</span>';
+    return items.map(([v,m])=> m===n
+      ? `<span class="chip ${c}">${esc(v)} <b data-brm="${k}" data-v="${esc(v)}" title="Togli da tutte">✕</b></span>`
+      : `<span class="chip ${c} part" title="Presente in ${m} su ${n}">${esc(v)} <i>${m}/${n}</i> <u data-badd="${k}" data-v="${esc(v)}" title="Aggiungi a tutte">+</u> <b data-brm="${k}" data-v="${esc(v)}" title="Togli da tutte">✕</b></span>`).join(''); };
+  const prov = same(p=>p.provincia||''), luogo = same(p=>(p.luogo||[]).filter(Boolean).join(', ')), ev = same(p=>p.evento), desc = same(p=>p.descrizione||'');
+  const nRiv = ps.filter(p=>!isDone(p)).length;
+  const evs = allEvents().sort((a,b)=>evTitle(a).localeCompare(evTitle(b)));
+  const mini = box.classList.contains('mini');
+  box.innerHTML = `
+    <div class="bhead"><b>${n} selezionat${n===1?'a':'e'}</b>
+      ${TR?`<button class="ok" data-bact="restore">Ripristina</button><button class="danger" data-bact="purge">Elimina</button>`:
+      `${nRiv?`<button class="ok" data-bact="ok" title="Segna come riviste">✓ Riviste</button>`:''}<button data-bact="del" title="Sposta nel cestino">🗑</button><button data-bact="expand">${mini?'Modifica ▴':'Chiudi ▾'}</button>`}
+      <button data-bact="none" title="Annulla selezione">✕</button></div>
+    <div class="bbody">
+    <h3 class="bfull">${n} ${n===1?'foto selezionata':'foto selezionate'}</h3>
+    <div class="sub">${nRiv} da rivedere · ${n-nRiv} riviste</div>
+    <div class="strip">${ps.slice(0,24).map(p=>`<img data-p="${esc(thumbOf(p))}" src="${TH.url.get(thumbOf(p))||PH}" ${rotOf(p)?`style="transform:rotate(${rotOf(p)}deg)"`:''} title="${esc(p.file)}">`).join('')}${n>24?`<span style="color:var(--mute);font-size:12px;align-self:center">+${n-24}</span>`:''}</div>
+    <div class="row"><button data-bact="all">Seleziona tutte le visibili</button><button data-bact="none" class="bfull">Deseleziona</button></div>
+    ${TR ? `<div class="row bfull" style="margin-top:10px"><button class="ok" data-bact="restore">Ripristina</button><button class="danger" data-bact="purge">Elimina definitivamente</button></div>` : `
+    <div class="state ${nRiv?'':'done'}">${nRiv?`● ${nRiv} da rivedere`:'✓ Tutte riviste'}<span style="margin-left:auto"></span>
+      ${nRiv?`<button class="ok" data-bact="ok">✓ Segna come riviste</button>`:`<button data-bact="riv">Rimetti da rivedere</button>`}</div>
+    <section><h4>Categorie</h4>${chips('categorie','cat')}<input class="add" data-badd-in="categorie" list="dl-categorie" placeholder="+ aggiungi categoria a tutte" enterkeyhint="done"></section>
+    <section><h4>Persone</h4>${chips('persone','per')}<input class="add" data-badd-in="persone" list="dl-persone" placeholder="+ aggiungi persona a tutte" enterkeyhint="done"></section>
+    <section><h4>Tag</h4>${chips('tag','tag')}<input class="add" data-badd-in="tag" list="dl-tag" placeholder="+ aggiungi tag a tutte" enterkeyhint="done"></section>
+    <section><h4>Provincia</h4><input class="add" id="bProv" list="dl-provincia" value="${esc(prov??'')}" placeholder="${prov===null?'valori diversi — scrivi per impostarla su tutte':'es. Bologna'}"></section>
+    <section><h4>Luogo (comune)</h4><input class="add" id="bLuogo" list="dl-luogo" value="${esc(luogo??'')}" placeholder="${luogo===null?'valori diversi — scrivi per impostarlo su tutte':'Città, Regione, Paese'}"></section>
+    <section><h4>Evento</h4><select id="bEv" style="width:100%">${ev===null?'<option value="">— eventi diversi: scegli per spostarle tutte —</option>':''}${evs.map(e=>`<option value="${esc(e)}" ${e===ev?'selected':''}>${esc(evTitle(e))}</option>`).join('')}<option value="__new">+ Nuovo evento…</option></select></section>
+    <section><h4>Descrizione</h4><textarea id="bDesc" placeholder="${desc===null?'descrizioni diverse — scrivi per sostituirle su tutte':'Scrivi una descrizione…'}">${esc(desc??'')}</textarea></section>
+    <section><h4>Ruota</h4><div class="row"><button data-bact="rotl">⟲ Sinistra</button><button data-bact="rotr">⟳ Destra</button></div></section>
+    <button class="danger bfull" data-bact="del" style="width:100%">🗑 Elimina (sposta nel cestino)</button>`}
+    <div class="kbd">Clic su una foto per aggiungerla o toglierla dalla selezione · <span>Maiusc</span>+clic per un intervallo · <span>Esc</span> deseleziona</div>
+    </div>`;
+  hookImgs(box);
+  if(S.bulkFocus){ const el=box.querySelector(`[data-badd-in="${S.bulkFocus}"]`); if(el) el.focus(); S.bulkFocus=null; }
+}
+function toggleIds(ids, on){ ids.forEach(i=> on ? S.sel.add(i) : S.sel.delete(i)); }
+function addValue(ids, field, val){
+  val = val.trim(); if(!val) return;
+  edit(ids, n => {
+    if(field==='provincia'){ n.provincia = val; return; }
+    if(field==='luogo'){ const parts = val.split(',').map(s=>s.trim()); n.luogo = [parts[0]||'', parts[1]||'', parts[2]||'']; return; }
+    if(!n[field].includes(val)) n[field].push(val);
+  });
+  refreshLists();
+}
+function removeValue(ids, field, val){ edit(ids, n => { n[field] = n[field].filter(v=>v!==val); }); }
+
+// ======================= visualizzatore =======================
+function openViewer(id){ S.vlist = S.list.map(p=>p.id); S.vi = S.vlist.indexOf(id); $('#viewer').classList.add('show'); $('#viewer').classList.remove('vopen'); document.body.classList.add('noscroll'); drawViewer(); }
+function closeViewer(){ $('#viewer').classList.remove('show'); const v=$('#vbox video'); if(v) v.pause(); $('#vbox').innerHTML=''; S.vi=-1; document.body.classList.remove('noscroll'); render(); }
+async function drawViewer(){
+  const id = S.vlist[S.vi]; if(!id){ closeViewer(); return; }
+  const p = E(byId.get(id)); const tok = S.vtok = Symbol();
+  const tp = thumbOf(p), tu = TH.url.get(tp) || PH;
+  const box = $('#vbox'); box.classList.remove('zoom');
+  $('#vcount').textContent = `${S.vi+1} di ${S.vlist.length}`;
+  if(p.tipo==='video'){
+    box.innerHTML = `<img src="${tu}" style="opacity:.6">`;
+    const u = await fileUrl(p.web ? APP+p.web : p.id); if(tok!==S.vtok) return;
+    if(!u){ box.innerHTML = `<div class="vmsg">Il video non è stato trovato su OneDrive.</div>`; }
+    else { box.innerHTML = `<video controls autoplay playsinline src="${esc(u)}" poster="${tu}"></video>`;
+      $('#vbox video').addEventListener('error', ()=>{ box.innerHTML = `<div class="vmsg"><img src="${tu}" style="max-width:280px;display:block;margin:0 auto 12px">Questo browser non riesce a riprodurre il video (formato ${esc((p.id.split('.').pop()||'').toUpperCase())}).<br><a href="${esc(u)}" target="_blank" rel="noopener">Apri l'originale</a></div>`; }, {once:true}); }
+  } else {
+    box.innerHTML = `<img src="${tu}" data-p="${esc(tp)}">`; want(tp);
+    applyRot($('#vbox img'), rotOf(p));
+    const rel = p.ant ? APP+p.ant : p.id;
+    fileUrl(rel).then(u=>{ if(tok!==S.vtok || !u) return; const im = new Image(); im.onload = ()=>{ if(tok!==S.vtok) return; const el=$('#vbox img'); if(el){ el.removeAttribute('data-p'); el.src = u; el.dataset.rel = rel; } }; im.src = u; }).catch(()=>{});
+  }
+  applyRot($('#vbox img, #vbox video'), rotOf(p));
+  // pre-carica il link della successiva
+  const nx = S.vlist[S.vi+1] && byId.get(S.vlist[S.vi+1]); if(nx){ want(thumbOf(nx)); if(nx.tipo!=='video') fileUrl(nx.ant?APP+nx.ant:nx.id).then(u=>{ if(u){ const i=new Image(); i.src=u; } }).catch(()=>{}); }
+  drawPanel(p);
+}
+function drawPanel(p){
+  const chips = (k,c) => (p[k]||[]).map(v=>`<span class="chip ${c}">${esc(v)} <b data-vrm="${k}" data-v="${esc(v)}">✕</b></span>`).join('') || '<span style="color:var(--mute);font-size:12.5px">nessuno</span>';
+  const luogo = (p.luogo||[]).filter(Boolean).join(', ');
+  $('#vbar').innerHTML = p.eliminata ? `<button class="ok" id="vRes">Ripristina</button><button data-vinfo="1">ℹ︎ Dettagli</button>` :
+    `<button id="vRotR" title="Ruota">⟳</button>${isDone(p)?'<button data-vinfo="1">ℹ︎ Dettagli</button>':'<button class="ok" id="vOk">✓ Conferma</button><button data-vinfo="1">ℹ︎</button>'}<button id="vDel" title="Elimina">🗑</button>`;
+  $('#vpanel').innerHTML = `<div class="grab" data-vinfo="1"></div>
+    <h3>${esc(evTitle(p.evento))}</h3>
+    <div class="sub">${fmtD(p.data.slice(0,10))} ore ${p.data.slice(11,16)} · ${S.vi+1} di ${S.vlist.length}</div>
+    ${p.eliminata ? `<div class="state" style="background:#fdecea">🗑 Nel cestino<span style="margin-left:auto"></span><button class="ok" id="vRes">Ripristina</button></div>` :
+    `<div class="state ${isDone(p)?'done':''}">${isDone(p)?'✓ Rivista':'● Da rivedere'}
+      <span style="margin-left:auto"></span>${isDone(p)?`<button id="vRiv">Rimetti da rivedere</button>`:`<button class="ok" id="vOk" title="Invio">✓ Conferma e avanti</button>`}</div>`}
+    <section><h4>Categorie</h4>${chips('categorie','cat')}<input class="add" data-vadd="categorie" list="dl-categorie" placeholder="+ aggiungi categoria" enterkeyhint="done"></section>
+    <section><h4>Persone</h4>${chips('persone','per')}<input class="add" data-vadd="persone" list="dl-persone" placeholder="+ aggiungi persona" enterkeyhint="done"></section>
+    <section><h4>Tag</h4>${chips('tag','tag')}<input class="add" data-vadd="tag" list="dl-tag" placeholder="+ aggiungi tag" enterkeyhint="done"></section>
+    <section><h4>Provincia</h4><input class="add" id="vProv" list="dl-provincia" value="${esc(p.provincia||'')}" placeholder="es. Bologna"></section>
+    <section><h4>Luogo (comune)</h4><input class="add" id="vLuogo" list="dl-luogo" value="${esc(luogo)}" placeholder="Città, Regione, Paese">
+      ${p.gps?`<div style="font-size:12px;margin-top:4px"><a target="_blank" rel="noopener" href="https://www.google.com/maps?q=${p.gps[0]},${p.gps[1]}">Vedi sulla mappa ↗</a></div>`:''}</section>
+    <section><h4>Descrizione</h4><textarea id="vDesc" placeholder="Scrivi una descrizione…">${esc(p.descrizione||'')}</textarea></section>
+    <section><h4>Evento</h4><select id="vEv" style="width:100%">${allEvents().sort((a,b)=>evTitle(a).localeCompare(evTitle(b))).map(e=>`<option value="${esc(e)}" ${e===p.evento?'selected':''}>${esc(evTitle(e))}</option>`).join('')}<option value="__new">+ Nuovo evento…</option></select></section>
+    <section><h4>File</h4><div style="font-size:12.5px;word-break:break-all">${esc(p.id)}<br><span style="color:var(--mute)">Nome proposto: ${esc(p.nome_proposto||'-')}</span><br><button class="link" id="vOrig">Apri originale ↗</button></div></section>
+    <section><h4>Ruota</h4><div class="rotrow"><button id="vRotL" title="Maiusc+R">⟲ Sinistra</button><button id="vRotR2" title="R">⟳ Destra</button></div></section>
+    ${p.eliminata?'':`<button class="danger" id="vDel2" title="Canc" style="width:100%">🗑 Elimina (sposta nel cestino)</button>`}
+    <div class="kbd"><span>←</span> <span>→</span> naviga · <span>Invio</span> conferma e avanti · <span>Canc</span> elimina · <span>R</span> ruota · <span>Esc</span> chiudi · doppio clic: ingrandisci</div>`;
+}
+function vEdit(fn){ const id = S.vlist[S.vi]; edit([id], fn); drawPanel(E(byId.get(id))); }
+function vNext(d){ const n = S.vi + d; if(n<0||n>=S.vlist.length) return; S.vi = n; drawViewer(); }
+function deleteNext(){ const id=S.vlist[S.vi]; if(E(byId.get(id)).eliminata) return; edit([id], n=>{ n.eliminata=true; }); toast('Spostata nel cestino'); if(S.vi < S.vlist.length-1) S.vi++; drawViewer(); }
+function confirmNext(){ const id=S.vlist[S.vi]; edit([id], n=>{ n.stato='rivista'; }); if(S.vi < S.vlist.length-1) S.vi++; drawViewer(); }
+async function toggleZoom(){
+  const box=$('#vbox'), img=$('#vbox img'); if(!img) return; const p = E(byId.get(S.vlist[S.vi]));
+  if(box.classList.contains('zoom')){ box.classList.remove('zoom'); img.style.width=''; applyRot(img, rotOf(p)); return; }
+  box.classList.add('zoom'); img.style.maxWidth='none'; img.style.maxHeight='none'; img.style.width = Math.round(box.clientWidth*2.2)+'px';
+  const heicOk = /iPhone|iPad/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && !/Chrome|Edg|Firefox/.test(navigator.userAgent));
+  if(p.ant && img.dataset.rel !== p.id && (!/\.(heic|heif)$/i.test(p.id) || heicOk)){
+    const u = await fileUrl(p.id).catch(()=>null); if(u){ const t=new Image(); t.onload=()=>{ if(box.classList.contains('zoom')){ img.src=u; img.dataset.rel=p.id; } }; t.src=u; }
+  }
+  box.scrollLeft = (box.scrollWidth-box.clientWidth)/2; box.scrollTop = (box.scrollHeight-box.clientHeight)/2;
+}
+
+// ======================= suggerimenti =======================
+function refreshLists(){
+  const sets = {tag:new Set(), persone:new Set(), categorie:new Set(CATEGORIE_BASE), luogo:new Set(), provincia:new Set()};
+  IDX.foto.forEach(p0=>{ const p=E(p0); (p.tag||[]).forEach(v=>sets.tag.add(v)); (p.persone||[]).forEach(v=>sets.persone.add(v)); (p.categorie||[]).forEach(v=>sets.categorie.add(v)); if(p.provincia) sets.provincia.add(p.provincia); if(p.luogo&&p.luogo[0]) sets.luogo.add(p.luogo.filter(Boolean).join(', ')); });
+  for(const k in sets) $('#dl-'+k).innerHTML = [...sets[k]].sort().map(v=>`<option value="${esc(v)}">`).join('');
+}
+
+// ======================= salvataggio su OneDrive (automatico) =======================
+const isDirty = () => S.changed.size>0 || S.evChanged.size>0;
+function setSave(st){ const b=$('#btnSalva'); b.classList.toggle('dirty', st==='dirty'||st==='saving'); b.classList.toggle('err', st==='error');
+  b.textContent = {dirty:'Salva', saving:'Salvo…', saved:'Salvato ✓', error:'Riprova'}[st] || 'Salvato'; }
+function markDirty(){ setSave('dirty'); savePending(); clearTimeout(S._st); S._st = setTimeout(()=>save(true), 2500); }
+function savePending(){ if(!isDirty()) return; try{ const foto={}, eventi={};
+  S.changed.forEach((_,id)=>{ foto[id]=MOD.foto[id]||null; }); S.evChanged.forEach((_,e)=>{ eventi[e]=MOD.eventi[e]||null; });
+  localStorage.setItem(PENDING, JSON.stringify({ts:new Date().toISOString(), foto, eventi})); }catch(e){} }
+function clearPending(){ try{ localStorage.removeItem(PENDING); }catch(e){} }
+function mergeRemote(remote){
+  remote.foto = remote.foto||{}; remote.eventi = remote.eventi||{};
+  S.changed.forEach((_,id)=>{ if(MOD.foto[id]) remote.foto[id]=MOD.foto[id]; else delete remote.foto[id]; });
+  S.evChanged.forEach((_,e)=>{ if(MOD.eventi[e]) remote.eventi[e]=MOD.eventi[e]; });
+  MOD = remote;
+}
+async function save(silent){
+  clearTimeout(S._st);
+  if(!isDirty()){ setSave('saved'); return; }
+  if(S.saving){ S.saveAgain = true; return; }
+  S.saving = true; setSave('saving');
+  try{
+    for(let i=0;;i++){
+      const m = await B.meta(F_MOD);
+      if(m && m.eTag !== S.modEtag && B!==Demo){
+        const t = await (await fetch(m.dl)).text();
+        if(!S.backupDone){ await B.putText(APP+'dati/modifiche_backup.js', t).catch(()=>{}); S.backupDone = true; }
+        mergeRemote(parseAssign(t)); S.modEtag = m.eTag; refreshLists(); if(S.vi<0) render();
+      } else if(m && !S.backupDone && B!==Demo){
+        const t = await (await fetch(m.dl)).text(); await B.putText(APP+'dati/modifiche_backup.js', t).catch(()=>{}); S.backupDone = true;
+      }
+      const seqAt = S.seq;
+      MOD.versione = MOD.versione||1; MOD.salvato = new Date().toISOString(); MOD.revisione = IDX.revisione||0;
+      const text = 'window.FOTO_MODIFICHE = ' + JSON.stringify(MOD) + ';\n';
+      try{ S.modEtag = await B.putText(F_MOD, text, m ? m.eTag : null);
+        S.changed.forEach((v,k)=>{ if(v<=seqAt) S.changed.delete(k); }); S.evChanged.forEach((v,k)=>{ if(v<=seqAt) S.evChanged.delete(k); });
+        if(isDirty()) savePending(); else clearPending();
+        break; }
+      catch(e){ if(!e.conflict || i>=3) throw e; }
+    }
+    setSave(isDirty()?'dirty':'saved');
+    if(!silent) toast('Modifiche salvate su OneDrive ✓');
+  }catch(e){
+    console.error(e); setSave('error');
+    if(!silent) modalMsg('Salvataggio non riuscito', esc(e.message)+'<br><br>Le modifiche restano su questo dispositivo: riprovo da solo fra poco.');
+    clearTimeout(S._st); S._st = setTimeout(()=>save(true), 30000);
+  }finally{
+    S.saving = false;
+    if(S.saveAgain){ S.saveAgain=false; save(true); } else if(isDirty() && !S._st) S._st = setTimeout(()=>save(true), 2500);
+  }
+}
+function toast(t, ms=2500){ const el=$('#toast'); el.textContent=t; el.style.display='block'; clearTimeout(el._t); el._t=setTimeout(()=>el.style.display='none', ms); }
+function modalMsg(title, html, okLabel){ return new Promise(res=>{ $('#mbox').innerHTML = `<h3>${title}</h3><div>${html}</div><div style="margin-top:16px;display:flex;gap:8px;justify-content:flex-end">${okLabel?`<button id="mCancel">Annulla</button><button class="primary" id="mOk">${okLabel}</button>`:`<button class="primary" id="mOk">OK</button>`}</div>`;
+  $('#modal').classList.add('show'); $('#mOk').onclick=()=>{ $('#modal').classList.remove('show'); res(true); }; const c=$('#mCancel'); if(c) c.onclick=()=>{ $('#modal').classList.remove('show'); res(false); }; }); }
+
+// ======================= eliminazione =======================
+function trash(ids){ if(!ids.length) return; edit(ids, n=>{ n.eliminata=true; }); ids.forEach(i=>S.sel.delete(i)); render();
+  toast(`${ids.length} ${ids.length===1?'elemento spostato':'elementi spostati'} nel Cestino`, 3000); }
+function restore(ids){ if(!ids.length) return; edit(ids, n=>{ delete n.eliminata; }); ids.forEach(i=>S.sel.delete(i)); render(); toast(`${ids.length} ripristinati ✓`); }
+async function purge(ids){
+  if(!ids.length) return;
+  const ok = await modalMsg(`Eliminare definitivamente ${ids.length} file?`,
+    `I file originali verranno spostati nella cartella <code>Foto/_cestino</code> del OneDrive (con le stesse sottocartelle) e spariranno dall'archivio.<br><br>Per liberare spazio cancella poi <code>_cestino</code> da OneDrive o da Esplora file.`, 'Elimina definitivamente');
+  if(!ok) return;
+  const fatti = [], errori = [];
+  for(let k=0;k<ids.length;k++){ const id = ids[k];
+    toast(`Sposto nel cestino… ${k+1} di ${ids.length}`, 60000);
+    try{ const dir = id.split('/').slice(0,-1).join('/'); await B.move(id, '_cestino'+(dir?'/'+dir:'')); fatti.push(id); }
+    catch(e){ errori.push(id+': '+e.message); }
+  }
+  $('#toast').style.display='none';
+  if(fatti.length){ edit(fatti, (n,p)=>{ n.rimossa=true; n.cestino='_cestino/'+p.id; }); fatti.forEach(i=>S.sel.delete(i)); await save(true); }
+  render();
+  modalMsg('Eliminazione completata', `${fatti.length} file spostati in <code>Foto/_cestino</code>.` + (errori.length?`<br><br><b>${errori.length} non riusciti:</b><br><small>${errori.map(esc).join('<br>')}</small>`:''));
+}
+
+// ======================= aggiorna: allinea l'indice a OneDrive =======================
+async function aggiorna(){
+  closeMenu();
+  if(isDirty()) await save(true);
+  let disk;
+  try{ disk = await B.listAll(n=>toast(`Leggo le cartelle di OneDrive… ${n.toLocaleString('it-IT')} elementi`, 600000)); }
+  catch(e){ $('#toast').style.display='none'; modalMsg('Errore', esc(e.message)); return; }
+  $('#toast').style.display='none';
+  const missing = IDX.foto.filter(p => !disk.has(p.id) && !(MOD.foto[p.id] && MOD.foto[p.id].rimossa));
+  const known = new Set(IDX.foto.map(p=>p.id));
+  const extra = [...disk].filter(f => !known.has(f));
+  const byName = new Map(); extra.forEach(f=>{ const n=f.split('/').pop().toLowerCase(); if(!byName.has(n)) byName.set(n,[]); byName.get(n).push(f); });
+  const moves = [], deleted = [], used = new Set();
+  for(const p of missing){
+    const n = p.id.split('/').pop().toLowerCase(); let c = (byName.get(n)||[]).filter(f=>!used.has(f));
+    if(c.length>1){ const par = p.id.split('/').slice(-2,-1)[0]; c = c.filter(f=>f.split('/').slice(-2,-1)[0]===par); }
+    if(c.length===1){ moves.push([p, c[0]]); used.add(c[0]); } else deleted.push(p);
+  }
+  const nuove = extra.filter(f=>!used.has(f));
+  const per = arr => { const m={}; arr.forEach(f=>{ const k=f.split('/').slice(0,2).join('/'); m[k]=(m[k]||0)+1; }); return Object.entries(m).sort().map(([k,n])=>`<tr><td>${esc(k)}</td><td style="text-align:right">${n}</td></tr>`).join(''); };
+  if(!moves.length && !deleted.length && !nuove.length){ modalMsg('Archivio aggiornato ✓','L\'indice corrisponde al OneDrive: nessuna foto eliminata, spostata o nuova.'); return; }
+  const html = `
+    ${deleted.length?`<p><b>${deleted.length} foto non ci sono più</b> su OneDrive: le tolgo dall'archivio.</p><table style="width:100%">${per(deleted.map(p=>p.id))}</table>`:''}
+    ${moves.length?`<p><b>${moves.length} foto spostate o in cartelle rinominate</b>: aggiorno il percorso (tag e modifiche restano).</p>`:''}
+    ${nuove.length?`<p><b>${nuove.length} foto nuove</b> da analizzare:</p><table style="width:100%">${per(nuove)}</table>
+      <p style="font-size:13px">Salvo l'elenco in <code>_app/dati/da_analizzare.txt</code>; poi chiedi a Claude: <i>«analizza le foto nuove dell'archivio»</i>.</p>`:''}`;
+  if(!await modalMsg('Aggiornamento archivio', html, 'Applica')) return;
+  try{
+    if(moves.length || deleted.length){
+      toast('Salvo l\'indice su OneDrive…', 120000);
+      const m = await B.meta(F_IDX);
+      if(m && S.idxEtag && m.eTag !== S.idxEtag && B!==Demo){ $('#toast').style.display='none'; modalMsg('Indice cambiato', 'Nel frattempo l\'indice è stato aggiornato da un altro dispositivo (o dall\'importazione settimanale). Usa “Ricarica i dati da OneDrive” e poi riprova.'); return; }
+      await B.copy(F_IDX, 'indice_backup.js');
+      const del = new Set(deleted.map(p=>p.id));
+      for(const [p,nf] of moves){ if(MOD.foto[p.id]){ MOD.foto[nf]=MOD.foto[p.id]; delete MOD.foto[p.id]; S.changed.set(nf, ++S.seq); S.changed.set(p.id, ++S.seq); } if(!p.id_originale) p.id_originale=p.id; p.id=nf; p.file=nf.split('/').pop(); }
+      deleted.forEach(p=>{ if(MOD.foto[p.id]){ delete MOD.foto[p.id]; S.changed.set(p.id, ++S.seq); } S.sel.delete(p.id); });
+      IDX.foto = IDX.foto.filter(p=>!del.has(p.id));
+      const usedEv = new Set(IDX.foto.map(p=>p.evento)); Object.keys(IDX.eventi).forEach(e=>{ if(!usedEv.has(e) && !MOD.eventi[e]) delete IDX.eventi[e]; });
+      IDX.revisione = (IDX.revisione||0)+1;
+      byId = new Map(IDX.foto.map(p=>[p.id,p]));
+      const text = 'window.FOTO_INDICE = '+JSON.stringify(IDX)+';\n';
+      S.idxEtag = await B.putText(F_IDX, text, m ? m.eTag : null);
+      await idbSet('indice', {etag:S.idxEtag, text});
+      markDirty(); await save(true);
+    }
+    if(nuove.length){ const old = await B.getText(APP+'dati/da_analizzare.txt'); const set = new Set(((old&&old.text)||'').split('\n').filter(Boolean)); nuove.forEach(f=>set.add(f)); await B.putText(APP+'dati/da_analizzare.txt', [...set].join('\n')); }
+    $('#toast').style.display='none';
+    refreshLists(); render();
+    modalMsg('Fatto ✓', `${deleted.length} rimosse · ${moves.length} percorsi aggiornati · ${nuove.length} nuove da analizzare.`);
+  }catch(e){ console.error(e); $('#toast').style.display='none'; modalMsg('Errore', esc(e.message)); }
+}
+
+// ======================= caricamento dati =======================
+function gate(msg, btnHtml, pct){ $('#gate').classList.remove('hide'); $('#gmsg').innerHTML = msg; $('#gbtn').innerHTML = btnHtml||'';
+  const bar=$('#gbar'); bar.style.display = pct==null?'none':'block'; if(pct!=null) bar.firstElementChild.style.width = Math.round(pct*100)+'%'; }
+async function download(url, size, label){
+  const r = await fetch(url); if(!r.ok) throw await httpErr(r);
+  if(!r.body || !r.body.getReader){ gate(label+'…', '', null); return await r.text(); }
+  const rd = r.body.getReader(); const chunks=[]; let got=0;
+  for(;;){ const {done, value} = await rd.read(); if(done) break; chunks.push(value); got+=value.length; gate(`${label}… ${(got/1048576).toFixed(1)} di ${(size/1048576).toFixed(1)} MB`, '', size?got/size:null); }
+  return new TextDecoder('utf-8').decode(await new Blob(chunks).arrayBuffer());
+}
+async function loadData(force){
+  gate('Controllo l\'archivio su OneDrive…');
+  let text;
+  if(B===Demo){ text = (await B.getText(F_IDX)).text; S.idxEtag='demo'; }
+  else {
+    const mi = await B.meta(F_IDX);
+    if(!mi) throw new Error(`Non trovo <code>${esc(CFG.root)}/_app/dati/indice.js</code> nel OneDrive di questo account. Hai fatto l'accesso con l'account di Yulia?`);
+    const cached = force ? null : await idbGet('indice');
+    if(cached && cached.etag===mi.eTag) text = cached.text;
+    else { text = await download(mi.dl, mi.size, 'Scarico l\'indice delle foto'); await idbSet('indice', {etag:mi.eTag, text}); }
+    S.idxEtag = mi.eTag;
+  }
+  IDX = parseAssign(text); IDX.eventi = IDX.eventi||{}; byId = new Map(IDX.foto.map(p=>[p.id,p]));
+  gate('Carico le modifiche…');
+  const mm = await B.getText(F_MOD);
+  MOD = mm ? parseAssign(mm.text) : {}; MOD.foto = MOD.foto||{}; MOD.eventi = MOD.eventi||{}; S.modEtag = mm ? mm.etag : null;
+  // modifiche rimaste su questo dispositivo e non ancora salvate
+  try{ const pd = JSON.parse(localStorage.getItem(PENDING)||'null');
+    if(pd){ let n=0; for(const id in pd.foto){ if(!byId.has(id)) continue; if(pd.foto[id]) MOD.foto[id]=pd.foto[id]; else delete MOD.foto[id]; S.changed.set(id, ++S.seq); n++; }
+      for(const e in pd.eventi){ if(pd.eventi[e]){ MOD.eventi[e]=pd.eventi[e]; S.evChanged.set(e, ++S.seq); } }
+      if(isDirty()){ toast(`Recupero ${n} modifiche non ancora salvate…`, 3000); setTimeout(()=>save(true), 500); } else clearPending(); } }catch(e){}
+  $('#gate').classList.add('hide');
+}
+async function checkUpdates(){
+  if(B===Demo || isDirty() || S.saving || S.vi>=0 || !account) return;
+  try{ const [mi, mm] = await Promise.all([B.meta(F_IDX), B.meta(F_MOD)]);
+    if((mi && mi.eTag!==S.idxEtag) || (mm && mm.eTag!==S.modEtag)){ await loadData(); refreshLists(); render(); toast('Dati aggiornati da OneDrive'); } }catch(e){}
+}
+
+// ======================= menu, filtri a scomparsa, selezione al tocco =======================
+function closeMenu(){ $('#menu').classList.remove('show'); }
+$('#btnMenu').onclick = e=>{ e.stopPropagation(); $('#menu').classList.toggle('show'); };
+document.addEventListener('click', e=>{ if(!e.target.closest('#menu') && !e.target.closest('#btnMenu')) closeMenu(); });
+$('#btnFiltri').onclick = ()=>{ $('#facets').classList.add('open'); document.body.classList.add('noscroll'); };
+function closeFacets(){ $('#facets').classList.remove('open'); document.body.classList.remove('noscroll'); }
+$('#btnSel').onclick = ()=>{ S.selMode = !S.selMode; if(!S.selMode) S.sel.clear(); $('#btnSel').classList.toggle('on', S.selMode); $('#btnSel').textContent = S.selMode?'Fine':'Seleziona'; render(); };
+$('#btnReload').onclick = async ()=>{ closeMenu(); if(isDirty()) await save(true); try{ await loadData(true); refreshLists(); render(); toast('Dati ricaricati ✓'); }catch(e){ gate(esc(e.message), '<button class="primary" onclick="location.reload()">Riprova</button>'); } };
+$('#btnCache').onclick = async ()=>{ closeMenu(); try{ await caches.delete('af-miniature'); }catch(e){} TH.cache=null; TH.url.clear(); TH.missing.clear(); toast('Cache delle miniature svuotata'); render(); };
+$('#btnEsci').onclick = async ()=>{ closeMenu(); if(isDirty()) await save(true); try{ localStorage.removeItem(PENDING); }catch(e){} await idbSet('indice', null); if(B===Graph) msalApp.logoutRedirect({account, postLogoutRedirectUri:redirectUri()}); };
+// pressione prolungata su una foto = selezione (telefono e iPad)
+let lp = null;
+$('#grid').addEventListener('touchstart', e=>{ const t = e.target.closest('.tile'); if(!t) return; const x=e.touches[0];
+  lp = {t, x:x.clientX, y:x.clientY, timer:setTimeout(()=>{ lp.fired=true; const ids=t.dataset.ids.split('|'); toggleIds(ids, !ids.every(i=>S.sel.has(i))); S.last=+t.dataset.i; if(navigator.vibrate) navigator.vibrate(15); render(); }, 450)}; }, {passive:true});
+$('#grid').addEventListener('touchmove', e=>{ if(!lp) return; const x=e.touches[0]; if(Math.abs(x.clientX-lp.x)>10||Math.abs(x.clientY-lp.y)>10){ clearTimeout(lp.timer); lp=null; } }, {passive:true});
+$('#grid').addEventListener('touchend', ()=>{ if(lp){ clearTimeout(lp.timer); if(lp.fired){ S.skipClick = Date.now(); } lp=null; } });
+$('#grid').addEventListener('contextmenu', e=>{ if(e.target.closest('.tile') && matchMedia('(hover:none)').matches) e.preventDefault(); });
+// scorrimento nel visualizzatore
+let sw = null;
+$('#vmedia').addEventListener('touchstart', e=>{ if(e.touches.length!==1 || $('#vbox').classList.contains('zoom')){ sw=null; return; } sw = {x:e.touches[0].clientX, y:e.touches[0].clientY, t:Date.now()}; }, {passive:true});
+$('#vmedia').addEventListener('touchend', e=>{ if(!sw) return; const t=e.changedTouches[0]; const dx=t.clientX-sw.x, dy=t.clientY-sw.y; const quick = Date.now()-sw.t < 700; sw=null;
+  if(e.target.closest('video') && Math.abs(dy)<40 && Math.abs(dx)<40) return;
+  if(quick && Math.abs(dx)>50 && Math.abs(dx)>Math.abs(dy)*1.3){ vNext(dx<0?1:-1); }
+  else if(quick && dy>90 && Math.abs(dy)>Math.abs(dx)*1.3){ closeViewer(); }
+  else if(quick && dy<-70 && Math.abs(dy)>Math.abs(dx)*1.3){ $('#viewer').classList.add('vopen'); }
+});
+let lastTap = 0;
+$('#vbox').addEventListener('click', e=>{ if(!e.target.matches('img')) return; const now=Date.now(); if(now-lastTap<320){ toggleZoom(); lastTap=0; } else { lastTap=now; } });
+$('#vbox').addEventListener('dblclick', e=>{ if(e.target.matches('img')) e.preventDefault(); });
+
+// ======================= eventi UI =======================
+$('#q').addEventListener('input', e=>{ clearTimeout(S._qt); S._qt=setTimeout(()=>{ S.q=e.target.value.trim(); S.limit=S.step; render(); },250); });
+$('#q').addEventListener('keydown', e=>{ if(e.key==='Enter') e.target.blur(); });
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{ S.view=b.dataset.view; S.limit=S.step; S.sel.clear(); render(); window.scrollTo(0,0); });
+$('#comprimi').onchange = e=>{ S.comprimi=e.target.checked; render(); };
+$('#ordine').onchange = e=>{ S.order=e.target.value; render(); };
+$('#zoom').oninput = e=> document.documentElement.style.setProperty('--tile', e.target.value+'px');
+$('#btnSalva').onclick = ()=>save(false);
+$('#btnNuove').onclick = aggiorna;
+$('#facets').onclick = e=>{
+  if(e.target.closest('[data-close]')){ closeFacets(); window.scrollTo(0,0); return; }
+  if(e.target.closest('[data-clrall]')){ S.filt={}; render(); return; }
+  const c = e.target.closest('[data-clr]'); if(c){ delete S.filt[c.dataset.clr]; render(); return; }
+  const m = e.target.closest('[data-more]'); if(m){ const k=m.dataset.more; showAll.has(k)?showAll.delete(k):showAll.add(k); render(); return; }
+  const fv = e.target.closest('.fv'); if(!fv) return; const k=fv.dataset.f, v=fv.dataset.v;
+  const s = S.filt[k] || (S.filt[k]=new Set()); s.has(v)?s.delete(v):s.add(v); S.limit=S.step; render();
+};
+$('#info').onclick = e=>{
+  const u = e.target.closest('[data-unf]'); if(u){ S.filt[u.dataset.unf].delete(u.dataset.v); render(); return; }
+  if(e.target.closest('[data-unq]')){ S.q=''; $('#q').value=''; render(); return; }
+  if(e.target.id==='btnReset'){ S.filt={}; S.q=''; $('#q').value=''; render(); }
+};
+$('#more').onclick = e=>{ if(e.target.id==='btnMore'){ S.limit+=S.step; render(); } };
+$('#grid').onclick = async e=>{
+  if(S.skipClick && Date.now()-S.skipClick<600){ S.skipClick=0; return; }
+  const rb = e.target.closest('[data-rot]');
+  if(rb){ e.stopPropagation(); const t=rb.closest('.tile'); rotate(t.dataset.ids.split('|'), +rb.dataset.rot); return; }
+  const g = e.target.closest('.badge.sim'); if(g){ e.stopPropagation(); const k=g.dataset.g; S.exp.has(k)?S.exp.delete(k):S.exp.add(k); render(); return; }
+  const tr = e.target.closest('[data-tr]');
+  if(tr){ const ids = S.list.map(p=>p.id); if(tr.dataset.tr==='restore') restore(ids); else purge(ids); return; }
+  const act = e.target.closest('[data-act]');
+  if(act){ const ev = act.closest('.group').dataset.ev; const ids = S.list.filter(p=>p.evento===ev).map(p=>p.id);
+    if(act.dataset.act==='selev'){ const all = ids.every(i=>S.sel.has(i)); toggleIds(ids,!all); render(); }
+    if(act.dataset.act==='resev'){ restore(ids); }
+    if(act.dataset.act==='okev'){ edit(ids.filter(i=>!isDone(E(byId.get(i)))), n=>{ n.stato='rivista'; }); toast(`Evento confermato: ${ids.length} elementi ✓`); }
+    if(act.dataset.act==='rename'){ const t = prompt('Nuovo nome dell\'evento:', evTitle(ev)); if(t&&t.trim()){ editEvent(ev, {titolo:t.trim()}); render(); } }
+    return; }
+  const tile = e.target.closest('.tile'); if(!tile) return;
+  const ids = tile.dataset.ids.split('|'), i = +tile.dataset.i;
+  if(e.shiftKey && S.last!=null){ const [a,b]=[Math.min(S.last,i),Math.max(S.last,i)]; for(let j=a;j<=b;j++) toggleIds(S.flat[j],true); render(); return; }
+  if(e.target.classList.contains('chk') || e.ctrlKey || e.metaKey || S.sel.size || S.selMode){ const on = !ids.every(x=>S.sel.has(x)); toggleIds(ids,on); S.last=i; render(); return; }
+  openViewer(ids[0]);
+};
+$('#bulk').addEventListener('click', e=>{
+  const ids=[...S.sel];
+  const rm=e.target.closest('[data-brm]'); if(rm){ removeValue(ids, rm.dataset.brm, rm.dataset.v); return; }
+  const ad=e.target.closest('[data-badd]'); if(ad){ addValue(ids, ad.dataset.badd, ad.dataset.v); return; }
+  const b=e.target.closest('[data-bact]'); if(!b) return;
+  const a=b.dataset.bact;
+  if(a==='expand'){ $('#bulk').classList.toggle('mini'); renderBulk(); return; }
+  if(a==='all'){ S.flat.forEach(x=>toggleIds(x,true)); render(); }
+  if(a==='none'){ S.sel.clear(); if(S.selMode) $('#btnSel').click(); else render(); }
+  if(a==='ok'){ edit(ids, x=>{ x.stato='rivista'; }); toast(`${ids.length} segnate come riviste ✓`); }
+  if(a==='riv'){ edit(ids, x=>{ x.stato='da_rivedere'; }); }
+  if(a==='rotl') rotate(ids,-90);
+  if(a==='rotr') rotate(ids,90);
+  if(a==='del') trash(ids);
+  if(a==='restore') restore(ids);
+  if(a==='purge') purge(ids);
+});
+$('#bulk').addEventListener('keydown', e=>{
+  const inp=e.target.closest('[data-badd-in]');
+  if(inp && e.key==='Enter'){ const v=inp.value.trim(); if(v){ S.bulkFocus=inp.dataset.baddIn; addValue([...S.sel], inp.dataset.baddIn, v); toast('Aggiunto a '+S.sel.size+' foto ✓'); } e.preventDefault(); }
+  if((e.target.id==='bProv'||e.target.id==='bLuogo') && e.key==='Enter') e.target.blur();
+  e.stopPropagation();
+});
+$('#bulk').addEventListener('change', e=>{
+  const ids=[...S.sel];
+  if(e.target.matches('[data-badd-in]')){ const v=e.target.value.trim(); if(v && e.target.dataset.done!=='1'){ addValue(ids, e.target.dataset.baddIn, v); } return; }
+  if(e.target.id==='bProv'){ const v=e.target.value.trim(); if(v||confirm('Svuotare la provincia su tutte le foto selezionate?')) edit(ids, n=>{ n.provincia=v; }); }
+  if(e.target.id==='bLuogo'){ const v=e.target.value.trim(); if(v){ const pa=v.split(',').map(x=>x.trim()); edit(ids, n=>{ n.luogo=[pa[0]||'',pa[1]||'',pa[2]||'']; }); } }
+  if(e.target.id==='bDesc'){ const v=e.target.value; edit(ids, n=>{ n.descrizione=v; }); }
+  if(e.target.id==='bEv'){ let ev=e.target.value; if(!ev) return;
+    if(ev==='__new'){ const t=prompt('Nome del nuovo evento:'); if(!t||!t.trim()){ renderBulk(); return; } ev='u-'+Date.now(); editEvent(ev, {titolo:t.trim()}); }
+    edit(ids, n=>{ n.evento=ev; }); toast('Spostate in “'+evTitle(ev)+'” ✓'); }
+  refreshLists();
+});
+// visualizzatore
+$('#vclose').onclick = closeViewer; $('#vprev').onclick=()=>vNext(-1); $('#vnext').onclick=()=>vNext(1);
+async function openOriginal(){ const p = E(byId.get(S.vlist[S.vi])); const w = window.open('', '_blank'); const u = await fileUrl(p.id).catch(()=>null); if(u){ if(w) w.location = u; else location.href = u; } else { if(w) w.close(); toast('File non trovato su OneDrive'); } }
+function viewerClick(e){
+  if(e.target.closest('[data-vinfo]')){ $('#viewer').classList.toggle('vopen'); return; }
+  const r = e.target.closest('[data-vrm]'); if(r){ vEdit(n=>{ n[r.dataset.vrm]=n[r.dataset.vrm].filter(v=>v!==r.dataset.v); }); return; }
+  const id = e.target.id;
+  if(id==='vOk') confirmNext();
+  if(id==='vRiv') vEdit(n=>{ n.stato='da_rivedere'; });
+  if(id==='vDel'||id==='vDel2') deleteNext();
+  if(id==='vRotL'||id==='vRotR'||id==='vRotR2'){ const vid=S.vlist[S.vi]; rotate([vid], id==='vRotL'?-90:90); applyRot($('#vbox img, #vbox video'), rotOf(E(byId.get(vid)))); drawPanel(E(byId.get(vid))); }
+  if(id==='vRes') vEdit(n=>{ delete n.eliminata; });
+  if(id==='vOrig') openOriginal();
+}
+$('#vpanel').addEventListener('click', viewerClick);
+$('#vbar').addEventListener('click', viewerClick);
+$('#vpanel').addEventListener('keydown', e=>{
+  const a = e.target.closest('[data-vadd]'); if(a && e.key==='Enter'){ const v=a.value.trim(); if(v){ const k=a.dataset.vadd; vEdit(n=>{ if(!n[k].includes(v)) n[k].push(v); }); refreshLists(); const nx=$(`[data-vadd="${k}"]`); if(nx) nx.focus(); } e.preventDefault(); e.stopPropagation(); return; }
+  if((e.target.id==='vLuogo'||e.target.id==='vProv') && e.key==='Enter'){ e.target.blur(); }
+  e.stopPropagation();
+});
+$('#vpanel').addEventListener('change', e=>{
+  if(e.target.matches('[data-vadd]')){ const v=e.target.value.trim(); if(v){ const k=e.target.dataset.vadd; vEdit(n=>{ if(!n[k].includes(v)) n[k].push(v); }); refreshLists(); } return; }
+  if(e.target.id==='vDesc'){ const v=e.target.value; vEdit(n=>{ n.descrizione=v; }); }
+  if(e.target.id==='vProv'){ const v=e.target.value.trim(); vEdit(n=>{ n.provincia=v; }); refreshLists(); }
+  if(e.target.id==='vLuogo'){ const parts=e.target.value.split(',').map(s=>s.trim()); vEdit(n=>{ n.luogo=[parts[0]||'',parts[1]||'',parts[2]||'']; }); refreshLists(); }
+  if(e.target.id==='vEv'){ let ev=e.target.value; if(ev==='__new'){ const t=prompt('Nome del nuovo evento:'); if(!t||!t.trim()){ drawPanel(E(byId.get(S.vlist[S.vi]))); return; } ev='u-'+Date.now(); editEvent(ev, {titolo:t.trim()}); } vEdit(n=>{ n.evento=ev; }); }
+});
+document.addEventListener('keydown', e=>{
+  if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='s'){ e.preventDefault(); save(false); return; }
+  if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) return;
+  if(S.vi<0){ if(e.key==='Escape' && S.sel.size){ S.sel.clear(); render(); }
+    if(e.key==='Delete' && S.sel.size && S.view!=='cestino') trash([...S.sel]); return; }
+  if(e.key==='Delete'){ deleteNext(); return; }
+  if(e.key==='r' || e.key==='R'){ const vid=S.vlist[S.vi]; rotate([vid], e.shiftKey?-90:90); applyRot($('#vbox img, #vbox video'), rotOf(E(byId.get(vid)))); drawPanel(E(byId.get(vid))); return; }
+  if(e.key==='ArrowRight') vNext(1); else if(e.key==='ArrowLeft') vNext(-1); else if(e.key==='Escape') closeViewer(); else if(e.key==='Enter') confirmNext();
+});
+window.addEventListener('resize', ()=>{ if(S.vi>=0) applyRot($('#vbox img, #vbox video'), rotOf(E(byId.get(S.vlist[S.vi])))); });
+document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='hidden'){ if(isDirty()){ savePending(); save(true); } } else checkUpdates(); });
+window.addEventListener('beforeunload', e=>{ if(isDirty()){ savePending(); e.preventDefault(); e.returnValue=''; } });
+const setHH = ()=>document.documentElement.style.setProperty('--hh', $('header').offsetHeight+'px');
+window.addEventListener('resize', setHH);
+
+// ======================= avvio =======================
+(async function init(){
+  if(NARROW.matches){ S.step = S.limit = 300; const z = innerWidth<500 ? 92 : 120; document.documentElement.style.setProperty('--tile', z+'px'); $('#zoom').value = z; }
+  setHH();
+  if('serviceWorker' in navigator && location.protocol==='https:' && !window.DEMO_DATA) navigator.serviceWorker.register('sw.js').catch(()=>{});
+  try{
+    if(window.DEMO_DATA){ B = Demo; $('#acct').textContent = 'Modalità dimostrazione'; }
+    else {
+      if(!window.msal) throw new Error('Libreria di accesso Microsoft non caricata.');
+      gate('Accesso a Microsoft…');
+      const ok = await authInit();
+      if(!ok){ gate('Accedi con l\'account Microsoft dove si trova l\'archivio (OneDrive di Yulia).', '<button class="primary" id="gLogin">Accedi con Microsoft</button>');
+        $('#gLogin').onclick = ()=>msalApp.loginRedirect({scopes:CFG.scopes, prompt:'select_account'}); return; }
+      $('#acct').textContent = 'Account: ' + (account.username||account.name||'') + ' · versione ' + CFG.versione;
+    }
+    await loadData();
+  }catch(e){ console.error(e); gate('Qualcosa non ha funzionato:<br><small>'+(e.message||e)+'</small>', '<button class="primary" onclick="location.reload()">Riprova</button>' + (account?' <button onclick="msalApp.logoutRedirect()">Esci</button>':'')); return; }
+  const nr = IDX.foto.filter(p=>{ const q=E(p); return !isDone(q)&&!q.eliminata&&!q.rimossa; }).length;
+  if(nr) S.view = 'rivedere';
+  setSave(isDirty()?'dirty':'saved');
+  refreshLists(); render(); setHH();
+})();
+</script>
+</body>
+</html>
