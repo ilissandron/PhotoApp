@@ -1,5 +1,5 @@
 // Archivio Foto - service worker: tiene in cache solo il codice dell'app (mai le foto o i dati).
-const V = 'af-app-v1';
+const V = 'af-app-v2';
 const SHELL = ['./', './index.html', './msal-browser.min.js', './manifest.webmanifest', './icon-180.png', './icon-192.png', './icon-512.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => c.addAll(SHELL)).catch(()=>{})); self.skipWaiting(); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith('af-app-') && k !== V).map(k => caches.delete(k))))); self.clients.claim(); });

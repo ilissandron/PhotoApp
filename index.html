@@ -240,7 +240,7 @@ body.bulkopen #content{padding-right:386px}
 </header>
 <div id="menu">
   <div class="mi"><span>Raggruppa foto simili</span><input type="checkbox" id="comprimi" checked></div>
-  <div class="mi"><span>Ordine</span><select id="ordine"><option value="asc">Dalla più vecchia</option><option value="desc">Dalla più recente</option></select></div>
+  <div class="mi"><span>Ordine</span><select id="ordine"><option value="desc">Dalla più recente</option><option value="asc">Dalla più vecchia</option></select></div>
   <div class="mi"><span>Dimensione</span><input type="range" id="zoom" min="70" max="300" value="160"></div>
   <hr>
   <button class="full" id="btnNuove">🔄 Aggiorna archivio (cartelle spostate, foto eliminate o nuove)</button>
@@ -280,7 +280,7 @@ const CFG = {
   clientId: '89aa726c-1bee-469f-ba3c-36fac63a587a',   // app "Archivio Foto" (Entra ID, account personali)
   root: 'Foto',                                         // cartella dell'archivio nel OneDrive
   scopes: ['User.Read', 'Files.ReadWrite'],
-  versione: '1.0 (20/11/2026)'
+  versione: '1.1 (20/11/2026)'
 };
 const APP = '_app/';
 const F_IDX = APP+'dati/indice.js', F_MOD = APP+'dati/modifiche.js';
@@ -295,7 +295,7 @@ const NARROW = matchMedia('(max-width: 899px)');
 const parseAssign = t => JSON.parse(t.slice(t.indexOf('=')+1).trim().replace(/;\s*$/,''));
 
 let IDX = {foto:[], eventi:{}}, MOD = {foto:{}, eventi:{}}, byId = new Map();
-const S = { view:'tutte', q:'', filt:{}, sel:new Set(), exp:new Set(), order:'asc', comprimi:true, step:900, limit:900, last:null, list:[], vi:-1,
+const S = { view:'tutte', q:'', filt:{}, sel:new Set(), exp:new Set(), order:'desc', comprimi:true, step:900, limit:900, last:null, list:[], vi:-1,
             changed:new Map(), evChanged:new Map(), seq:0, modEtag:null, idxEtag:null, saving:false, saveAgain:false, selMode:false, backupDone:false };
 
 // ======================= piccolo database locale (IndexedDB) =======================
@@ -506,7 +506,7 @@ function renderFacets(all, nList){
     sel.forEach(v=>{ if(!cnt.has(v)) cnt.set(v,0); });
     const items = [...cnt.entries()];
     if(!items.length) continue;
-    items.sort(f.sort==='key' ? (a,b)=> (S.order==='desc'? b[0].localeCompare(a[0]) : a[0].localeCompare(b[0])) : (a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]));
+    items.sort(f.sort==='key' ? (a,b)=> (+b[0]||0)-(+a[0]||0) || b[0].localeCompare(a[0]) : (a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]));
     const lim = showAll.has(f.k) ? 9999 : 10;
     h += `<div class="facet"><h4>${f.label}${sel.size?` <button class="link" data-clr="${f.k}">azzera (${sel.size})</button>`:''}</h4>`;
     items.slice(0,lim).forEach(([v,n])=>{ h += `<div class="fv ${sel.has(v)?'on':''} ${n?'':'zero'}" data-f="${f.k}" data-v="${esc(v)}"><input type="checkbox" tabindex="-1" ${sel.has(v)?'checked':''}><span class="lbl">${esc(v)}</span><span class="n">${n}</span></div>`; });
@@ -920,7 +920,7 @@ $('#q').addEventListener('input', e=>{ clearTimeout(S._qt); S._qt=setTimeout(()=
 $('#q').addEventListener('keydown', e=>{ if(e.key==='Enter') e.target.blur(); });
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{ S.view=b.dataset.view; S.limit=S.step; S.sel.clear(); render(); window.scrollTo(0,0); });
 $('#comprimi').onchange = e=>{ S.comprimi=e.target.checked; render(); };
-$('#ordine').onchange = e=>{ S.order=e.target.value; render(); };
+$('#ordine').onchange = e=>{ S.order=e.target.value; try{ localStorage.setItem('af-ordine', S.order); }catch(x){} render(); };
 $('#zoom').oninput = e=> document.documentElement.style.setProperty('--tile', e.target.value+'px');
 $('#btnSalva').onclick = ()=>save(false);
 $('#btnNuove').onclick = aggiorna;
@@ -1038,6 +1038,7 @@ window.addEventListener('resize', setHH);
 // ======================= avvio =======================
 (async function init(){
   if(NARROW.matches){ S.step = S.limit = 300; const z = innerWidth<500 ? 92 : 120; document.documentElement.style.setProperty('--tile', z+'px'); $('#zoom').value = z; }
+  try{ const o=localStorage.getItem('af-ordine'); if(o==='asc'||o==='desc'){ S.order=o; $('#ordine').value=o; } }catch(e){}
   setHH();
   if('serviceWorker' in navigator && location.protocol==='https:' && !window.DEMO_DATA) navigator.serviceWorker.register('sw.js').catch(()=>{});
   try{
