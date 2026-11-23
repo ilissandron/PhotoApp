@@ -129,14 +129,23 @@ body.bulkopen #content{padding-right:386px}
 #vbar{display:none;position:absolute;left:0;right:0;bottom:0;gap:8px;justify-content:center;align-items:center;padding:10px 10px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(transparent,rgba(0,0,0,.55));z-index:2}
 #vbar button{background:rgba(255,255,255,.16);border:none;color:#fff;font-size:15px;padding:9px 13px;border-radius:10px}
 #vbar button.ok{background:var(--ok)}
-#vpanel{width:360px;flex:none;background:#fff;overflow:auto;padding:16px}
+#vpanel{width:360px;flex:none;background:#fff;overflow:auto;padding:12px 14px}
 #vpanel .grab{display:none}
-#vpanel h3{margin:0 0 2px;font-size:17px}
-#vpanel .sub{color:var(--mute);font-size:12.5px;margin-bottom:10px}
-#vpanel section{margin:12px 0}
-#vpanel section h4{margin:0 0 4px;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--mute)}
-#vpanel .add{width:100%;margin-top:4px}
-#vpanel textarea{width:100%;min-height:54px;resize:vertical}
+#vpanel h3{margin:0 0 1px;font-size:16px;line-height:1.25}
+#vpanel .sub{color:var(--mute);font-size:12px}
+#vpanel .vhead{display:flex;gap:8px;align-items:flex-start;margin-bottom:6px}
+#vpanel .vhead>div:first-child{flex:1;min-width:0}
+#vpanel .vicons{display:flex;gap:4px;flex:none}
+#vpanel .vicons button{padding:3px 7px;font-size:15px;line-height:1.2}
+#vpanel section{margin:7px 0}
+#vpanel section h4{margin:0 0 2px;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--mute)}
+#vpanel .add{width:100%;margin-top:2px;padding:4px 8px}
+#vpanel .two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#vpanel .two section{margin:0}
+#vpanel textarea{width:100%;min-height:34px;resize:vertical;padding:4px 8px}
+#vpanel .vfile{font-size:11.5px;color:var(--mute);word-break:break-all;margin-top:6px}
+#vpanel .state{padding:6px 8px;margin:6px 0}
+#vpanel .kbd{margin-top:6px;font-size:11px;line-height:1.5}
 .vmsg{color:#fff;text-align:center;max-width:420px;line-height:1.5;padding:20px}
 .vmsg a{color:#9cf}
 .state{display:flex;gap:8px;align-items:center;padding:10px;border-radius:8px;background:#fff6e5;margin:10px 0}
@@ -280,7 +289,7 @@ const CFG = {
   clientId: '89aa726c-1bee-469f-ba3c-36fac63a587a',   // app "Archivio Foto" (Entra ID, account personali)
   root: 'Foto',                                         // cartella dell'archivio nel OneDrive
   scopes: ['User.Read', 'Files.ReadWrite'],
-  versione: '1.1 (20/11/2026)'
+  versione: '1.2 (23/11/2026)'
 };
 const APP = '_app/';
 const F_IDX = APP+'dati/indice.js', F_MOD = APP+'dati/modifiche.js';
@@ -679,24 +688,26 @@ function drawPanel(p){
   $('#vbar').innerHTML = p.eliminata ? `<button class="ok" id="vRes">Ripristina</button><button data-vinfo="1">ℹ︎ Dettagli</button>` :
     `<button id="vRotR" title="Ruota">⟳</button>${isDone(p)?'<button data-vinfo="1">ℹ︎ Dettagli</button>':'<button class="ok" id="vOk">✓ Conferma</button><button data-vinfo="1">ℹ︎</button>'}<button id="vDel" title="Elimina">🗑</button>`;
   $('#vpanel').innerHTML = `<div class="grab" data-vinfo="1"></div>
-    <h3>${esc(evTitle(p.evento))}</h3>
-    <div class="sub">${fmtD(p.data.slice(0,10))} ore ${p.data.slice(11,16)} · ${S.vi+1} di ${S.vlist.length}</div>
+    <div class="vhead"><div><h3>${esc(evTitle(p.evento))}</h3>
+      <div class="sub">${fmtD(p.data.slice(0,10))} ore ${p.data.slice(11,16)} · ${S.vi+1} di ${S.vlist.length}</div></div>
+      <div class="vicons"><button id="vRotL" title="Ruota a sinistra (Maiusc+R)">⟲</button><button id="vRotR2" title="Ruota a destra (R)">⟳</button>${p.eliminata?'':'<button class="danger" id="vDel2" title="Elimina: sposta nel cestino (Canc)">🗑</button>'}</div></div>
     ${p.eliminata ? `<div class="state" style="background:#fdecea">🗑 Nel cestino<span style="margin-left:auto"></span><button class="ok" id="vRes">Ripristina</button></div>` :
     `<div class="state ${isDone(p)?'done':''}">${isDone(p)?'✓ Rivista':'● Da rivedere'}
       <span style="margin-left:auto"></span>${isDone(p)?`<button id="vRiv">Rimetti da rivedere</button>`:`<button class="ok" id="vOk" title="Invio">✓ Conferma e avanti</button>`}</div>`}
-    <section><h4>Categorie</h4>${chips('categorie','cat')}<input class="add" data-vadd="categorie" list="dl-categorie" placeholder="+ aggiungi categoria" enterkeyhint="done"></section>
-    <section><h4>Persone</h4>${chips('persone','per')}<input class="add" data-vadd="persone" list="dl-persone" placeholder="+ aggiungi persona" enterkeyhint="done"></section>
-    <section><h4>Tag</h4>${chips('tag','tag')}<input class="add" data-vadd="tag" list="dl-tag" placeholder="+ aggiungi tag" enterkeyhint="done"></section>
-    <section><h4>Provincia</h4><input class="add" id="vProv" list="dl-provincia" value="${esc(p.provincia||'')}" placeholder="es. Bologna"></section>
-    <section><h4>Luogo (comune)</h4><input class="add" id="vLuogo" list="dl-luogo" value="${esc(luogo)}" placeholder="Città, Regione, Paese">
-      ${p.gps?`<div style="font-size:12px;margin-top:4px"><a target="_blank" rel="noopener" href="https://www.google.com/maps?q=${p.gps[0]},${p.gps[1]}">Vedi sulla mappa ↗</a></div>`:''}</section>
-    <section><h4>Descrizione</h4><textarea id="vDesc" placeholder="Scrivi una descrizione…">${esc(p.descrizione||'')}</textarea></section>
+    <section><h4>Categorie</h4>${chips('categorie','cat')}<input class="add" data-vadd="categorie" list="dl-categorie" placeholder="+ aggiungi categoria" enterkeyhint="enter"></section>
+    <section><h4>Persone</h4>${chips('persone','per')}<input class="add" data-vadd="persone" list="dl-persone" placeholder="+ aggiungi persona" enterkeyhint="enter"></section>
+    <section><h4>Tag</h4>${chips('tag','tag')}<input class="add" data-vadd="tag" list="dl-tag" placeholder="+ aggiungi tag" enterkeyhint="enter"></section>
+    <div class="two"><section><h4>Provincia</h4><input class="add" id="vProv" list="dl-provincia" value="${esc(p.provincia||'')}" placeholder="es. Bologna"></section>
+      <section><h4>Luogo</h4><input class="add" id="vLuogo" list="dl-luogo" value="${esc(luogo)}" placeholder="Città, Regione, Paese"></section></div>
+    ${p.gps?`<div style="font-size:12px;margin-top:2px"><a target="_blank" rel="noopener" href="https://www.google.com/maps?q=${p.gps[0]},${p.gps[1]}">Vedi sulla mappa ↗</a></div>`:''}
+    <section><h4>Descrizione</h4><textarea id="vDesc" rows="2" placeholder="Scrivi una descrizione…">${esc(p.descrizione||'')}</textarea></section>
     <section><h4>Evento</h4><select id="vEv" style="width:100%">${allEvents().sort((a,b)=>evTitle(a).localeCompare(evTitle(b))).map(e=>`<option value="${esc(e)}" ${e===p.evento?'selected':''}>${esc(evTitle(e))}</option>`).join('')}<option value="__new">+ Nuovo evento…</option></select></section>
-    <section><h4>File</h4><div style="font-size:12.5px;word-break:break-all">${esc(p.id)}<br><span style="color:var(--mute)">Nome proposto: ${esc(p.nome_proposto||'-')}</span><br><button class="link" id="vOrig">Apri originale ↗</button></div></section>
-    <section><h4>Ruota</h4><div class="rotrow"><button id="vRotL" title="Maiusc+R">⟲ Sinistra</button><button id="vRotR2" title="R">⟳ Destra</button></div></section>
-    ${p.eliminata?'':`<button class="danger" id="vDel2" title="Canc" style="width:100%">🗑 Elimina (sposta nel cestino)</button>`}
-    <div class="kbd"><span>←</span> <span>→</span> naviga · <span>Invio</span> conferma e avanti · <span>Canc</span> elimina · <span>R</span> ruota · <span>Esc</span> chiudi · doppio clic: ingrandisci</div>`;
+    <div class="vfile" title="Nome proposto: ${esc(p.nome_proposto||'-')}">${esc(p.id)} · <button class="link" id="vOrig" style="font-size:11.5px;padding:0">Apri originale ↗</button></div>
+    <div class="kbd"><span>←</span> <span>→</span> naviga · <span>Invio</span> conferma · <span>Canc</span> elimina · <span>R</span> ruota · <span>Esc</span> chiudi</div>`;
 }
+// dopo aver aggiunto un valore, il cursore resta nella stessa casella (se l'utente non ha cliccato altrove)
+function keepFocus(k){ const f=()=>{ const ae=document.activeElement; if(!ae || ae===document.body || !document.contains(ae)){ const nx=$(`#vpanel [data-vadd="${k}"]`); if(nx) nx.focus(); } };
+  f(); setTimeout(f, 0); setTimeout(f, 60); }
 function vEdit(fn){ const id = S.vlist[S.vi]; edit([id], fn); drawPanel(E(byId.get(id))); }
 function vNext(d){ const n = S.vi + d; if(n<0||n>=S.vlist.length) return; S.vi = n; drawViewer(); }
 function deleteNext(){ const id=S.vlist[S.vi]; if(E(byId.get(id)).eliminata) return; edit([id], n=>{ n.eliminata=true; }); toast('Spostata nel cestino'); if(S.vi < S.vlist.length-1) S.vi++; drawViewer(); }
@@ -1009,12 +1020,12 @@ function viewerClick(e){
 $('#vpanel').addEventListener('click', viewerClick);
 $('#vbar').addEventListener('click', viewerClick);
 $('#vpanel').addEventListener('keydown', e=>{
-  const a = e.target.closest('[data-vadd]'); if(a && e.key==='Enter'){ const v=a.value.trim(); if(v){ const k=a.dataset.vadd; vEdit(n=>{ if(!n[k].includes(v)) n[k].push(v); }); refreshLists(); const nx=$(`[data-vadd="${k}"]`); if(nx) nx.focus(); } e.preventDefault(); e.stopPropagation(); return; }
+  const a = e.target.closest('[data-vadd]'); if(a && e.key==='Enter'){ const v=a.value.trim(); if(v){ const k=a.dataset.vadd; a.value=''; vEdit(n=>{ if(!n[k].includes(v)) n[k].push(v); }); refreshLists(); const nx=$(`#vpanel [data-vadd="${k}"]`); if(nx) nx.focus(); keepFocus(k); } e.preventDefault(); e.stopPropagation(); return; }
   if((e.target.id==='vLuogo'||e.target.id==='vProv') && e.key==='Enter'){ e.target.blur(); }
   e.stopPropagation();
 });
 $('#vpanel').addEventListener('change', e=>{
-  if(e.target.matches('[data-vadd]')){ const v=e.target.value.trim(); if(v){ const k=e.target.dataset.vadd; vEdit(n=>{ if(!n[k].includes(v)) n[k].push(v); }); refreshLists(); } return; }
+  if(e.target.matches('[data-vadd]')){ const v=e.target.value.trim(); if(v){ const k=e.target.dataset.vadd; e.target.value=''; vEdit(n=>{ if(!n[k].includes(v)) n[k].push(v); }); refreshLists(); keepFocus(k); } return; }
   if(e.target.id==='vDesc'){ const v=e.target.value; vEdit(n=>{ n.descrizione=v; }); }
   if(e.target.id==='vProv'){ const v=e.target.value.trim(); vEdit(n=>{ n.provincia=v; }); refreshLists(); }
   if(e.target.id==='vLuogo'){ const parts=e.target.value.split(',').map(s=>s.trim()); vEdit(n=>{ n.luogo=[parts[0]||'',parts[1]||'',parts[2]||'']; }); refreshLists(); }
