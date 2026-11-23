@@ -95,23 +95,32 @@ aside .ahead{display:none}
 .dot{position:absolute;top:8px;right:8px;width:10px;height:10px;border-radius:50%;background:var(--warn);border:2px solid #fff}
 .tile.exp{outline-color:#9fb8e8}
 #more{padding:20px;text-align:center;color:var(--mute)}
-#bulk{position:fixed;right:0;top:var(--hh);bottom:0;width:370px;z-index:30;background:#fff;border-left:1px solid var(--line);box-shadow:-4px 0 14px rgba(0,0,0,.08);overflow:auto;padding:14px 16px 40px;display:none}
+#bulk{position:fixed;right:0;top:var(--hh);bottom:0;width:370px;z-index:30;background:#fff;border-left:1px solid var(--line);box-shadow:-4px 0 14px rgba(0,0,0,.08);overflow:auto;padding:10px 14px 16px;display:none}
 #bulk.show{display:block}
 body.bulkopen #content{padding-right:386px}
 #bulk .bhead{display:none}
-#bulk h3{margin:0;font-size:17px}
-#bulk .sub{color:var(--mute);font-size:12.5px;margin:2px 0 8px}
-#bulk section{margin:12px 0}
-#bulk section h4{margin:0 0 4px;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--mute)}
-#bulk .add{width:100%;margin-top:4px}
-#bulk .strip{display:flex;gap:3px;flex-wrap:wrap;margin:6px 0}
-#bulk .strip img{width:40px;height:40px;object-fit:cover;border-radius:4px;background:#dde1e7}
+#bulk h3{margin:0;font-size:16px}
+#bulk .sub{color:var(--mute);font-size:12px;margin:1px 0 4px}
+#bulk .sub button.link{font-size:12px;padding:0 0 0 6px}
+#bulk .btop{display:flex;gap:8px;align-items:flex-start}
+#bulk .btop>div:first-child{flex:1;min-width:0}
+#bulk .bicons{display:flex;gap:4px;flex:none}
+#bulk .bicons button{padding:3px 7px;font-size:15px;line-height:1.2}
+#bulk section{margin:7px 0}
+#bulk section h4{margin:0 0 2px;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--mute)}
+#bulk .add{width:100%;margin-top:2px;padding:4px 8px}
+#bulk .two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#bulk .two section{margin:0}
+#bulk .state{padding:6px 8px;margin:6px 0}
+#bulk .kbd{margin-top:6px;font-size:11px;line-height:1.5}
+#bulk .strip{display:flex;gap:3px;flex-wrap:wrap;margin:4px 0}
+#bulk .strip img{width:30px;height:30px;object-fit:cover;border-radius:4px;background:#dde1e7}
 #bulk .chip.part{opacity:.65;border:1px dashed #9aa3b5}
 #bulk .chip i{font-style:normal;color:var(--mute);font-size:11px}
 #bulk .chip u{text-decoration:none;cursor:pointer;color:var(--acc);font-weight:600;padding:0 2px}
 #bulk .row{display:flex;gap:6px;flex-wrap:wrap}
 #bulk .row button{flex:1}
-#bulk textarea{width:100%;min-height:48px;resize:vertical}
+#bulk textarea{width:100%;min-height:34px;resize:vertical;padding:4px 8px}
 #viewer{position:fixed;inset:0;z-index:50;background:#0e121a;display:none}
 #viewer.show{display:flex}
 #vmedia{flex:1;display:flex;align-items:center;justify-content:center;position:relative;min-width:0;min-height:0;touch-action:pan-y pinch-zoom}
@@ -289,7 +298,7 @@ const CFG = {
   clientId: '89aa726c-1bee-469f-ba3c-36fac63a587a',   // app "Archivio Foto" (Entra ID, account personali)
   root: 'Foto',                                         // cartella dell'archivio nel OneDrive
   scopes: ['User.Read', 'Files.ReadWrite'],
-  versione: '1.3 (23/11/2026)'
+  versione: '1.4 (23/11/2026)'
 };
 const APP = '_app/';
 const F_IDX = APP+'dati/indice.js', F_MOD = APP+'dati/modifiche.js';
@@ -623,23 +632,21 @@ function renderBulk(){
       `${nRiv?`<button class="ok" data-bact="ok" title="Segna come riviste">✓ Riviste</button>`:''}<button data-bact="del" title="Sposta nel cestino">🗑</button><button data-bact="expand">${mini?'Modifica ▴':'Chiudi ▾'}</button>`}
       <button data-bact="none" title="Annulla selezione">✕</button></div>
     <div class="bbody">
-    <h3 class="bfull">${n} ${n===1?'foto selezionata':'foto selezionate'}</h3>
-    <div class="sub">${nRiv} da rivedere · ${n-nRiv} riviste</div>
-    <div class="strip">${ps.slice(0,24).map(p=>`<img data-p="${esc(thumbOf(p))}" src="${TH.url.get(thumbOf(p))||PH}" ${rotOf(p)?`style="transform:rotate(${rotOf(p)}deg)"`:''} title="${esc(p.file)}">`).join('')}${n>24?`<span style="color:var(--mute);font-size:12px;align-self:center">+${n-24}</span>`:''}</div>
-    <div class="row"><button data-bact="all">Seleziona tutte le visibili</button><button data-bact="none" class="bfull">Deseleziona</button></div>
-    ${TR ? `<div class="row bfull" style="margin-top:10px"><button class="ok" data-bact="restore">Ripristina</button><button class="danger" data-bact="purge">Elimina definitivamente</button></div>` : `
+    <div class="btop"><div><h3 class="bfull">${n} ${n===1?'foto selezionata':'foto selezionate'}</h3>
+      <div class="sub">${nRiv} da rivedere · ${n-nRiv} riviste<span> · <button class="link" data-bact="all">tutte le visibili</button><button class="link" data-bact="none">deseleziona</button></span></div></div>
+      <div class="bicons">${TR?'':`<button data-bact="rotl" title="Ruota a sinistra">⟲</button><button data-bact="rotr" title="Ruota a destra">⟳</button><button class="danger" data-bact="del" title="Elimina: sposta nel cestino (Canc)">🗑</button>`}</div></div>
+    <div class="strip">${ps.slice(0,22).map(p=>`<img data-p="${esc(thumbOf(p))}" src="${TH.url.get(thumbOf(p))||PH}" ${rotOf(p)?`style="transform:rotate(${rotOf(p)}deg)"`:''} title="${esc(p.file)}">`).join('')}${n>22?`<span style="color:var(--mute);font-size:12px;align-self:center">+${n-22}</span>`:''}</div>
+    ${TR ? `<div class="row" style="margin-top:8px"><button class="ok" data-bact="restore">Ripristina</button><button class="danger" data-bact="purge">Elimina definitivamente</button></div>` : `
     <div class="state ${nRiv?'':'done'}">${nRiv?`● ${nRiv} da rivedere`:'✓ Tutte riviste'}<span style="margin-left:auto"></span>
       ${nRiv?`<button class="ok" data-bact="ok">✓ Segna come riviste</button>`:`<button data-bact="riv">Rimetti da rivedere</button>`}</div>
-    <section><h4>Categorie</h4>${chips('categorie','cat')}<input class="add" data-badd-in="categorie" list="dl-categorie" placeholder="+ aggiungi categoria a tutte" enterkeyhint="done"></section>
-    <section><h4>Persone</h4>${chips('persone','per')}<input class="add" data-badd-in="persone" list="dl-persone" placeholder="+ aggiungi persona a tutte" enterkeyhint="done"></section>
-    <section><h4>Tag</h4>${chips('tag','tag')}<input class="add" data-badd-in="tag" list="dl-tag" placeholder="+ aggiungi tag a tutte" enterkeyhint="done"></section>
-    <section><h4>Provincia</h4><input class="add" id="bProv" list="dl-provincia" value="${esc(prov??'')}" placeholder="${prov===null?'valori diversi — scrivi per impostarla su tutte':'es. Bologna'}"></section>
-    <section><h4>Luogo (comune)</h4><input class="add" id="bLuogo" list="dl-luogo" value="${esc(luogo??'')}" placeholder="${luogo===null?'valori diversi — scrivi per impostarlo su tutte':'Città, Regione, Paese'}"></section>
+    <section><h4>Categorie</h4>${chips('categorie','cat')}<input class="add" data-badd-in="categorie" list="dl-categorie" placeholder="+ aggiungi categoria a tutte" enterkeyhint="enter"></section>
+    <section><h4>Persone</h4>${chips('persone','per')}<input class="add" data-badd-in="persone" list="dl-persone" placeholder="+ aggiungi persona a tutte" enterkeyhint="enter"></section>
+    <section><h4>Tag</h4>${chips('tag','tag')}<input class="add" data-badd-in="tag" list="dl-tag" placeholder="+ aggiungi tag a tutte" enterkeyhint="enter"></section>
+    <div class="two"><section><h4>Provincia</h4><input class="add" id="bProv" list="dl-provincia" value="${esc(prov??'')}" placeholder="${prov===null?'valori diversi':'es. Bologna'}" title="${prov===null?'Valori diversi: scrivi per impostarla su tutte':''}"></section>
+      <section><h4>Luogo</h4><input class="add" id="bLuogo" list="dl-luogo" value="${esc(luogo??'')}" placeholder="${luogo===null?'valori diversi':'Città, Regione, Paese'}" title="${luogo===null?'Valori diversi: scrivi per impostarlo su tutte':''}"></section></div>
     <section><h4>Evento</h4><select id="bEv" style="width:100%">${ev===null?'<option value="">— eventi diversi: scegli per spostarle tutte —</option>':''}${evs.map(e=>`<option value="${esc(e)}" ${e===ev?'selected':''}>${esc(evTitle(e))}</option>`).join('')}<option value="__new">+ Nuovo evento…</option></select></section>
-    <section><h4>Descrizione</h4><textarea id="bDesc" placeholder="${desc===null?'descrizioni diverse — scrivi per sostituirle su tutte':'Scrivi una descrizione…'}">${esc(desc??'')}</textarea></section>
-    <section><h4>Ruota</h4><div class="row"><button data-bact="rotl">⟲ Sinistra</button><button data-bact="rotr">⟳ Destra</button></div></section>
-    <button class="danger bfull" data-bact="del" style="width:100%">🗑 Elimina (sposta nel cestino)</button>`}
-    <div class="kbd">Clic su una foto per aggiungerla o toglierla dalla selezione · <span>Maiusc</span>+clic per un intervallo · <span>Esc</span> deseleziona</div>
+    <section><h4>Descrizione</h4><textarea id="bDesc" rows="2" placeholder="${desc===null?'descrizioni diverse — scrivi per sostituirle su tutte':'Scrivi una descrizione…'}">${esc(desc??'')}</textarea></section>`}
+    <div class="kbd bfull">Clic: aggiungi/togli · <span>Maiusc</span>+clic: intervallo · <span>Canc</span> elimina · <span>Esc</span> deseleziona</div>
     </div>`;
   hookImgs(box);
   if(S.bulkFocus){ const el=box.querySelector(`[data-badd-in="${S.bulkFocus}"]`); if(el) el.focus(); S.bulkFocus=null; }
