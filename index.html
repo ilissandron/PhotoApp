@@ -246,6 +246,7 @@ body.bulkopen #content{padding-right:386px}
   <input id="q" type="search" placeholder="Cerca: luogo, evento, persona, tag…" enterkeyhint="search">
   <div class="tabs">
     <button data-view="tutte">Tutte</button>
+    <button data-view="approvate">Approvate <span class="pill gray" id="nApp"></span></button>
     <button data-view="rivedere">Da rivedere <span class="pill" id="nRiv"></span></button>
     <button data-view="cestino" class="trash">Cestino <span class="pill gray" id="nDel"></span></button>
   </div>
@@ -298,7 +299,7 @@ const CFG = {
   clientId: '89aa726c-1bee-469f-ba3c-36fac63a587a',   // app "Archivio Foto" (Entra ID, account personali)
   root: 'Foto',                                         // cartella dell'archivio nel OneDrive
   scopes: ['User.Read', 'Files.ReadWrite'],
-  versione: '1.4 (23/11/2026)'
+  versione: '1.6 (23/11/2026)'
 };
 const APP = '_app/';
 const F_IDX = APP+'dati/indice.js', F_MOD = APP+'dati/modifiche.js';
@@ -509,6 +510,7 @@ function pass(p, except){
   if(p.rimossa) return false;
   if(S.view==='cestino'){ if(!p.eliminata) return false; } else if(p.eliminata) return false;
   if(S.view==='rivedere' && isDone(p)) return false;
+  if(S.view==='approvate' && !isDone(p)) return false;
   if(S.q){ const h = hay(p); for(const t of S.q.toLowerCase().split(/\s+/).filter(Boolean)) if(!h.includes(t)) return false; }
   for(const f of FACETS){ if(f.k===except) continue; const set = S.filt[f.k]; if(!set||!set.size) continue;
     if(!f.get(p).some(v=>set.has(v))) return false; }
@@ -542,6 +544,7 @@ function render(){
   const list = all.filter(p=>pass(p));
   list.sort((a,b)=> S.order==='asc' ? a.data.localeCompare(b.data) : b.data.localeCompare(a.data));
   S.list = list;
+  $('#nApp').textContent = all.filter(p=>isDone(p)&&!p.eliminata&&!p.rimossa).length || '';
   $('#nRiv').textContent = all.filter(p=>!isDone(p)&&!p.eliminata&&!p.rimossa).length || '';
   $('#nDel').textContent = all.filter(p=>p.eliminata&&!p.rimossa).length || '';
   const TR = S.view==='cestino';
@@ -633,8 +636,9 @@ function renderBulk(){
       <button data-bact="none" title="Annulla selezione">✕</button></div>
     <div class="bbody">
     <div class="btop"><div><h3 class="bfull">${n} ${n===1?'foto selezionata':'foto selezionate'}</h3>
-      <div class="sub">${nRiv} da rivedere · ${n-nRiv} riviste<span> · <button class="link" data-bact="all">tutte le visibili</button><button class="link" data-bact="none">deseleziona</button></span></div></div>
-      <div class="bicons">${TR?'':`<button data-bact="rotl" title="Ruota a sinistra">⟲</button><button data-bact="rotr" title="Ruota a destra">⟳</button><button class="danger" data-bact="del" title="Elimina: sposta nel cestino (Canc)">🗑</button>`}</div></div>
+      <div class="sub">${nRiv} da rivedere · ${n-nRiv} riviste</div>
+      <div class="sub"><button class="link" data-bact="all" style="padding:0">Seleziona tutte le visibili</button></div></div>
+      <div class="bicons">${TR?'':`<button data-bact="rotl" title="Ruota a sinistra">⟲</button><button data-bact="rotr" title="Ruota a destra">⟳</button><button class="danger" data-bact="del" title="Elimina: sposta nel cestino (Canc)">🗑</button>`}<button data-bact="none" title="Chiudi la selezione (Esc)">✕</button></div></div>
     <div class="strip">${ps.slice(0,22).map(p=>`<img data-p="${esc(thumbOf(p))}" src="${TH.url.get(thumbOf(p))||PH}" ${rotOf(p)?`style="transform:rotate(${rotOf(p)}deg)"`:''} title="${esc(p.file)}">`).join('')}${n>22?`<span style="color:var(--mute);font-size:12px;align-self:center">+${n-22}</span>`:''}</div>
     ${TR ? `<div class="row" style="margin-top:8px"><button class="ok" data-bact="restore">Ripristina</button><button class="danger" data-bact="purge">Elimina definitivamente</button></div>` : `
     <div class="state ${nRiv?'':'done'}">${nRiv?`● ${nRiv} da rivedere`:'✓ Tutte riviste'}<span style="margin-left:auto"></span>
