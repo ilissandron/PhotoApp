@@ -289,7 +289,7 @@ const CFG = {
   clientId: '89aa726c-1bee-469f-ba3c-36fac63a587a',   // app "Archivio Foto" (Entra ID, account personali)
   root: 'Foto',                                         // cartella dell'archivio nel OneDrive
   scopes: ['User.Read', 'Files.ReadWrite'],
-  versione: '1.2 (23/11/2026)'
+  versione: '1.3 (23/11/2026)'
 };
 const APP = '_app/';
 const F_IDX = APP+'dati/indice.js', F_MOD = APP+'dati/modifiche.js';
@@ -682,8 +682,17 @@ async function drawViewer(){
   const nx = S.vlist[S.vi+1] && byId.get(S.vlist[S.vi+1]); if(nx){ want(thumbOf(nx)); if(nx.tipo!=='video') fileUrl(nx.ant?APP+nx.ant:nx.id).then(u=>{ if(u){ const i=new Image(); i.src=u; } }).catch(()=>{}); }
   drawPanel(p);
 }
+const CHIPC = {categorie:'cat', persone:'per', tag:'tag'};
+const chipsHtml = (p,k) => (p[k]||[]).map(v=>`<span class="chip ${CHIPC[k]}">${esc(v)} <b data-vrm="${k}" data-v="${esc(v)}">✕</b></span>`).join('') || '<span style="color:var(--mute);font-size:12.5px">nessuno</span>';
+// aggiunge un valore senza ridisegnare il pannello: la casella resta la stessa e il cursore non si sposta
+function vAddValue(k, v){
+  const id = S.vlist[S.vi]; if(!id || !v) return;
+  edit([id], n=>{ if(!n[k].includes(v)) n[k].push(v); });
+  const box = $(`#vpanel [data-chips="${k}"]`); if(box) box.innerHTML = chipsHtml(E(byId.get(id)), k);
+  refreshLists();
+}
 function drawPanel(p){
-  const chips = (k,c) => (p[k]||[]).map(v=>`<span class="chip ${c}">${esc(v)} <b data-vrm="${k}" data-v="${esc(v)}">✕</b></span>`).join('') || '<span style="color:var(--mute);font-size:12.5px">nessuno</span>';
+  const chips = (k) => `<span data-chips="${k}">${chipsHtml(p,k)}</span>`;
   const luogo = (p.luogo||[]).filter(Boolean).join(', ');
   $('#vbar').innerHTML = p.eliminata ? `<button class="ok" id="vRes">Ripristina</button><button data-vinfo="1">ℹ︎ Dettagli</button>` :
     `<button id="vRotR" title="Ruota">⟳</button>${isDone(p)?'<button data-vinfo="1">ℹ︎ Dettagli</button>':'<button class="ok" id="vOk">✓ Conferma</button><button data-vinfo="1">ℹ︎</button>'}<button id="vDel" title="Elimina">🗑</button>`;
@@ -694,9 +703,9 @@ function drawPanel(p){
     ${p.eliminata ? `<div class="state" style="background:#fdecea">🗑 Nel cestino<span style="margin-left:auto"></span><button class="ok" id="vRes">Ripristina</button></div>` :
     `<div class="state ${isDone(p)?'done':''}">${isDone(p)?'✓ Rivista':'● Da rivedere'}
       <span style="margin-left:auto"></span>${isDone(p)?`<button id="vRiv">Rimetti da rivedere</button>`:`<button class="ok" id="vOk" title="Invio">✓ Conferma e avanti</button>`}</div>`}
-    <section><h4>Categorie</h4>${chips('categorie','cat')}<input class="add" data-vadd="categorie" list="dl-categorie" placeholder="+ aggiungi categoria" enterkeyhint="enter"></section>
-    <section><h4>Persone</h4>${chips('persone','per')}<input class="add" data-vadd="persone" list="dl-persone" placeholder="+ aggiungi persona" enterkeyhint="enter"></section>
-    <section><h4>Tag</h4>${chips('tag','tag')}<input class="add" data-vadd="tag" list="dl-tag" placeholder="+ aggiungi tag" enterkeyhint="enter"></section>
+    <section><h4>Categorie</h4>${chips('categorie')}<input class="add" data-vadd="categorie" list="dl-categorie" placeholder="+ aggiungi categoria" enterkeyhint="enter"></section>
+    <section><h4>Persone</h4>${chips('persone')}<input class="add" data-vadd="persone" list="dl-persone" placeholder="+ aggiungi persona" enterkeyhint="enter"></section>
+    <section><h4>Tag</h4>${chips('tag')}<input class="add" data-vadd="tag" list="dl-tag" placeholder="+ aggiungi tag" enterkeyhint="enter"></section>
     <div class="two"><section><h4>Provincia</h4><input class="add" id="vProv" list="dl-provincia" value="${esc(p.provincia||'')}" placeholder="es. Bologna"></section>
       <section><h4>Luogo</h4><input class="add" id="vLuogo" list="dl-luogo" value="${esc(luogo)}" placeholder="Città, Regione, Paese"></section></div>
     ${p.gps?`<div style="font-size:12px;margin-top:2px"><a target="_blank" rel="noopener" href="https://www.google.com/maps?q=${p.gps[0]},${p.gps[1]}">Vedi sulla mappa ↗</a></div>`:''}
@@ -988,7 +997,8 @@ $('#bulk').addEventListener('click', e=>{
 });
 $('#bulk').addEventListener('keydown', e=>{
   const inp=e.target.closest('[data-badd-in]');
-  if(inp && e.key==='Enter'){ const v=inp.value.trim(); if(v){ S.bulkFocus=inp.dataset.baddIn; addValue([...S.sel], inp.dataset.baddIn, v); toast('Aggiunto a '+S.sel.size+' foto ✓'); } e.preventDefault(); }
+  if(inp && e.key==='Enter'){ const v=inp.value.trim(); if(v){ const k=inp.dataset.baddIn; S.bulkFocus=k; addValue([...S.sel], k, v); toast('Aggiunto a '+S.sel.size+' foto ✓');
+      const f=()=>{ const ae=document.activeElement; if(!ae || ae===document.body || !document.contains(ae)){ const el=$(`#bulk [data-badd-in="${k}"]`); if(el) el.focus(); } }; setTimeout(f,0); setTimeout(f,60); } e.preventDefault(); }
   if((e.target.id==='bProv'||e.target.id==='bLuogo') && e.key==='Enter') e.target.blur();
   e.stopPropagation();
 });
@@ -1020,12 +1030,12 @@ function viewerClick(e){
 $('#vpanel').addEventListener('click', viewerClick);
 $('#vbar').addEventListener('click', viewerClick);
 $('#vpanel').addEventListener('keydown', e=>{
-  const a = e.target.closest('[data-vadd]'); if(a && e.key==='Enter'){ const v=a.value.trim(); if(v){ const k=a.dataset.vadd; a.value=''; vEdit(n=>{ if(!n[k].includes(v)) n[k].push(v); }); refreshLists(); const nx=$(`#vpanel [data-vadd="${k}"]`); if(nx) nx.focus(); keepFocus(k); } e.preventDefault(); e.stopPropagation(); return; }
+  const a = e.target.closest('[data-vadd]'); if(a && e.key==='Enter'){ const v=a.value.trim(); if(v){ const k=a.dataset.vadd; a.value=''; vAddValue(k, v); a.focus(); keepFocus(k); } e.preventDefault(); e.stopPropagation(); return; }
   if((e.target.id==='vLuogo'||e.target.id==='vProv') && e.key==='Enter'){ e.target.blur(); }
   e.stopPropagation();
 });
 $('#vpanel').addEventListener('change', e=>{
-  if(e.target.matches('[data-vadd]')){ const v=e.target.value.trim(); if(v){ const k=e.target.dataset.vadd; e.target.value=''; vEdit(n=>{ if(!n[k].includes(v)) n[k].push(v); }); refreshLists(); keepFocus(k); } return; }
+  if(e.target.matches('[data-vadd]')){ const v=e.target.value.trim(); if(v){ const k=e.target.dataset.vadd; e.target.value=''; vAddValue(k, v); keepFocus(k); } return; }
   if(e.target.id==='vDesc'){ const v=e.target.value; vEdit(n=>{ n.descrizione=v; }); }
   if(e.target.id==='vProv'){ const v=e.target.value.trim(); vEdit(n=>{ n.provincia=v; }); refreshLists(); }
   if(e.target.id==='vLuogo'){ const parts=e.target.value.split(',').map(s=>s.trim()); vEdit(n=>{ n.luogo=[parts[0]||'',parts[1]||'',parts[2]||'']; }); refreshLists(); }
